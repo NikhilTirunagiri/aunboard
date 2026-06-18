@@ -1,0 +1,50 @@
+name: release
+
+# Cut a release by pushing a v* tag (see RELEASING.md). Builds + tests, publishes
+# aunboard to the public npm registry (with provenance), and attaches the tarball to
+# a GitHub Release. Requires an NPM_TOKEN repo secret (an npm automation token).
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # create the GitHub Release
+  id-token: write # npm provenance
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4 # uses the packageManager pin from package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm -r typecheck
+      - run: pnpm -r test
+      - run: pnpm -r build
+
+      - name: Publish to npm
+        working-directory: packages/aunboard
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Pack tarball (release artifact)
+        working-directory: packages/aunboard
+        run: npm pack
+
+      - name: Attach tarball to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packages/aunboard/*.tgz
+          generate_release_notes: true
+          fail_on_unmatched_files: true
