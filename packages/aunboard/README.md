@@ -39,4 +39,4 @@ export function AunboardMount({ children }: { children: React.ReactNode }) {
 - **Authoring tour-friendly UI**: `docs/authoring-tour-friendly-ui.md`
 - **Releasing**: `RELEASING.md`
 
-(Full docs live in the [repository](https://github.com/nikhiltirunagiri/aunboard).)
+(Full docs live in the [repository](https://github.com/NikhilTirunagiri/aunboard).)

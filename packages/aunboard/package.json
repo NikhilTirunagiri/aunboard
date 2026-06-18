@@ -17,11 +17,11 @@
     "locator"
   ],
   "author": "Nikhil Tirunagiri",
-  "homepage": "https://github.com/nikhiltirunagiri/aunboard#readme",
-  "bugs": "https://github.com/nikhiltirunagiri/aunboard/issues",
+  "homepage": "https://github.com/NikhilTirunagiri/aunboard#readme",
+  "bugs": "https://github.com/NikhilTirunagiri/aunboard/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nikhiltirunagiri/aunboard.git",
+    "url": "git+https://github.com/NikhilTirunagiri/aunboard.git",
     "directory": "packages/aunboard"
   },
   "type": "module",
