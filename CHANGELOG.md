@@ -3,6 +3,15 @@
 All notable changes to `aunboard` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.3.1] — 2026-08-31
+
+First release published by CI through trusted publishing (OIDC) rather than by hand, so unlike
+0.3.0 it carries a provenance attestation. No runtime changes.
+
+### Changed
+- Updated package READMEs and release documentation.
+- `scripts/trust-publishers.sh` registers the release workflow as a trusted publisher.
+
 ## [0.3.0] — 2026-08-31
 
 The production-readiness release. aunboard moves from "dev overlay" to something you can ship,
