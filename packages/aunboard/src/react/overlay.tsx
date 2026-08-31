@@ -78,7 +78,7 @@ export function Overlay({ tour }: { tour?: Tour | null }) {
   void tick;
 
   return createPortal(
-    <div data-label-mode-overlay style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
+    <div data-aunboard-overlay style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
       <div style={{ pointerEvents: "auto" }}>
         {badges}
         <LegendPanel steps={resolved.map((r) => r.step)} />

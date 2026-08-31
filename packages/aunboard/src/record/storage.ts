@@ -1,7 +1,9 @@
 import type { Tour } from "../tour/types";
 import { serializeTour, parseTour } from "./artifact";
 
-export const recordingKey = (tourId: string) => `lm:recording:${tourId}`;
+export const recordingKey = (tourId: string) => `aun:recording:${tourId}`;
+/** Pre-rename key. Still read (never written) so a recording in flight isn't lost. */
+const legacyRecordingKey = (tourId: string) => `lm:recording:${tourId}`;
 
 function storage(): Storage | null {
   try {
@@ -18,7 +20,7 @@ export function loadRecording(tourId: string): Tour | null {
   try {
     // getItem itself can throw SecurityError (Safari private mode, sandboxed iframes),
     // so it must be inside the try, not just parseTour.
-    const raw = s.getItem(recordingKey(tourId));
+    const raw = s.getItem(recordingKey(tourId)) ?? s.getItem(legacyRecordingKey(tourId));
     if (!raw) return null;
     return parseTour(raw);
   } catch {

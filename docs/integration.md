@@ -64,26 +64,26 @@ app once, near the root.
 // your-app/src/app/AunboardMount.tsx
 "use client";
 import { useRouter } from "next/navigation";
-import { LabelModeProvider, useLabelMode } from "aunboard";
+import { AunboardProvider, useAunboard } from "aunboard";
 import { tours } from "../../aunboard.tours"; // {} to start; wire your exported tour later
 
 export function AunboardMount({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   return (
-    <LabelModeProvider
+    <AunboardProvider
       tours={tours}
       navigate={(path) => router.push(path)}     // see §5
       record={{ tour: { id: "demo", name: "Product Demo" } }} // dev-only record target
     >
       {children}
       <RecordButton />
-    </LabelModeProvider>
+    </AunboardProvider>
   );
 }
 
 // Dev-only entry into Record mode (intentionally NOT in the keyboard cycle).
 function RecordButton() {
-  const { mode, setMode } = useLabelMode();
+  const { mode, setMode } = useAunboard();
   if (process.env.NODE_ENV === "production") return null;
   return (
     <button
@@ -136,15 +136,15 @@ router so client-side nav (not a full reload) is used:
 ```tsx
 // Next App Router
 const router = useRouter();           // next/navigation
-<LabelModeProvider navigate={(p) => router.push(p)} … />
+<AunboardProvider navigate={(p) => router.push(p)} … />
 
 // Next Pages Router
 const router = useRouter();           // next/router
-<LabelModeProvider navigate={(p) => router.push(p)} … />
+<AunboardProvider navigate={(p) => router.push(p)} … />
 
 // React Router
 const navigate = useNavigate();
-<LabelModeProvider navigate={(p) => navigate(p)} … />
+<AunboardProvider navigate={(p) => navigate(p)} … />
 
 // No router / plain app: omit `navigate` — aunboard falls back to History API + popstate.
 ```
@@ -165,7 +165,7 @@ to find an element that's on another route.
      on position or volatile text). Fix the element per the
      [authoring guide](./authoring-tour-friendly-ui.md) and re-pick — this is the moment to do it.
 4. Repeat across pages; each step remembers its `route`. Steps autosave to `localStorage`
-   (`lm:recording:<id>`), so a reload resumes.
+   (`aun:recording:<id>`), so a reload resumes.
    - **Behind a tab/accordion?** Just click the tab (a normal pass-through click) on your way
      to the element, then pick it. aunboard captures that click as the step's **reveal** (an
      "Opens first: …" chip on the card — removable) and re-opens it automatically at replay.
@@ -210,14 +210,14 @@ tour) throws loudly rather than failing silently.
 The overlay is off in production by default. To run it in a **staging/demo** build:
 
 ```tsx
-<LabelModeProvider enabled={true} defaultMode="explore" tours={tours} … />
+<AunboardProvider enabled={true} defaultMode="explore" tours={tours} … />
 ```
 
 Gate it on your own env flag so it never leaks into real prod:
 
 ```tsx
 const showAunboard = process.env.NEXT_PUBLIC_AUNBOARD === "on";
-<LabelModeProvider enabled={showAunboard} tours={tours} … />
+<AunboardProvider enabled={showAunboard} tours={tours} … />
 ```
 
 When `enabled` is `false`, the provider renders children only — zero overlay, zero listeners,
@@ -251,5 +251,59 @@ and Record mode's code is never even imported (it's a dev-only dynamic import).
 ## 11. Uninstall
 
 Remove `<AunboardMount>` and the dependency. To clear stored state, remove the
-`lm:recording:*` and `label-mode:tour:*` keys from `localStorage` (a one-liner in the console:
+`aun:recording:*` and `label-mode:tour:*` keys from `localStorage` (a one-liner in the console:
 `Object.keys(localStorage).filter(k => k.startsWith("lm:") || k.startsWith("label-mode:")).forEach(k => localStorage.removeItem(k))`).
+
+---
+
+## Durability: the build plugin and CI verification
+
+Everything above works with no cooperation from your app. These two steps are what take a tour
+from "usually resolves" to "resolves, and you find out immediately when it doesn't".
+
+### 1. Stamp build-time IDs
+
+```bash
+pnpm add -D @aunboard/vite
+```
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { aunboard } from "@aunboard/vite";
+
+export default defineConfig({
+  plugins: [react(), aunboard()],
+  resolve: { dedupe: ["react", "react-dom"] },
+});
+```
+
+The plugin reads your committed tours and stamps `data-aun` onto exactly the elements they
+reference — no source edits, negligible production overhead. It maintains `aunboard.ids.json`,
+which re-matches IDs across file moves, component renames and reordering.
+
+**Commit `aunboard.ids.json`.** It is what makes IDs survive refactoring.
+
+### 2. Verify tours on every PR
+
+```bash
+pnpm add -D @aunboard/cli playwright
+pnpm exec playwright install chromium
+```
+
+```bash
+pnpm exec aunboard verify --url http://127.0.0.1:4173
+```
+
+Add it to CI so a PR that breaks a tour fails review instead of shipping. See
+[production.md](production.md) for the full workflow and
+[`verify-tours.yml`](../.github/workflows/verify-tours.yml) for a copyable job.
+
+### What to commit
+
+| File | Why |
+|---|---|
+| `tours/*.tour.json` | the demos themselves |
+| `aunboard.ids.json` | keeps stamped IDs stable across refactors |
+| `.github/workflows/verify-tours.yml` | fails the PR when a tour breaks |

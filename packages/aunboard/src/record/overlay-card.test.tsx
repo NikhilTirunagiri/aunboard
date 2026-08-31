@@ -50,7 +50,7 @@ describe("OverlayCard", () => {
         anchor={anchor}
         onSave={vi.fn()}
         onCancel={vi.fn()}
-        durability={{ tier: "fragile", reason: "Matched by position (1 of 37)." }}
+        durability={{ tier: "fragile", reason: "Matched by position (1 of 37)." , score: 0 }}
       />,
     );
     expect(screen.getByRole("note")).toBeTruthy();
@@ -64,7 +64,7 @@ describe("OverlayCard", () => {
         anchor={anchor}
         onSave={vi.fn()}
         onCancel={vi.fn()}
-        durability={{ tier: "stable", reason: "Durable." }}
+        durability={{ tier: "stable", reason: "Durable." , score: 0 }}
       />,
     );
     expect(screen.queryByRole("note")).toBeNull();

@@ -53,7 +53,7 @@ STEP 2 — guarantee ONE React copy (or you'll hit "Invalid hook call")
 
 STEP 3 — mount the provider (a CLIENT component, once, near the root)
 Create a small client component (e.g. AunboardMount) that wraps the app's children in
-<LabelModeProvider> and mount it in the root layout/entry. Wire these props:
+<AunboardProvider> and mount it in the root layout/entry. Wire these props:
   - navigate: the app's client-side router push — Next App Router: (p) => useRouter().push(p) from
     next/navigation; Next Pages: next/router; React Router: useNavigate(); no router: omit it
     (aunboard falls back to the History API).
@@ -80,7 +80,7 @@ Put the exported JSON in the repo (e.g. src/tours/<id>.tour.json) and create a a
   import type { Tours } from "aunboard";
   import demo from "./src/tours/<id>.tour.json";
   export const tours: Tours = { <id>: demo };   // the map key MUST equal the tour's id
-Pass `tours` into <LabelModeProvider>. (Until exported + committed, a recording lives only in my
+Pass `tours` into <AunboardProvider>. (Until exported + committed, a recording lives only in my
 browser's localStorage and is invisible to teammates.)
 
 STEP 6 — make tours durable (important, do this proactively)
@@ -110,6 +110,20 @@ REFERENCES (read these from the aunboard package/repo if you can reach them — 
 - docs/integration.md — full setup, provider props table, navigation wiring, SSR notes, troubleshooting.
 - docs/authoring-tour-friendly-ui.md — writing components so tours stay durable + a drop-in rules block.
 This prompt is the orchestration; those docs are the detail. Prefer them over assumptions.
+
+STEP 5 — durability (do this, it is the difference between a demo that lasts and one that rots)
+Install and wire the build plugin so tours resolve from build-stamped ids rather than from
+rendered text:
+  - `@aunboard/vite` for Vite: add `aunboard()` to `plugins` in vite.config.
+  - Create a `tours/` directory at the repo root for committed tour JSON.
+  - Tell me to commit `aunboard.ids.json` once it appears (it keeps ids stable across refactors).
+
+STEP 6 — CI verification
+Add a workflow that builds the app, serves it, and runs:
+  `pnpm exec aunboard verify --url <served-url> --reporter github`
+so a PR that breaks a tour fails review. Install `@aunboard/cli` and `playwright` as dev deps.
+Match this repo's existing CI conventions (reuse its node/pnpm setup steps).
+
 ```
 
 ---

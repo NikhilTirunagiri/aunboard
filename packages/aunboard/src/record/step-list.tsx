@@ -15,7 +15,7 @@ export function StepList({ session, armed, onToggleArm, onRemove, onMove, onExpo
 
   return (
     <div
-      data-lm-ui
+      data-aun-ui
       style={{
         position: "fixed",
         bottom: 16,

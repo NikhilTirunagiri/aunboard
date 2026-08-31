@@ -1,4 +1,3 @@
-// packages/label-mode/src/locator/resolve.ts
 import type { ElementLocator, ResolveResult } from "./types";
 import { implicitRole, accessibleName, normalizeText } from "./accessible-name";
 import { cssEscape } from "./css-path";

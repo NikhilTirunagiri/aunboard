@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { Walkthrough } from "./walkthrough";
-import { LabelModeContext, type LabelModeValue } from "./context";
+import { AunboardContext, type AunboardValue } from "./context";
 import type { Tours } from "../tour/types";
 
 afterEach(() => {
@@ -24,7 +24,7 @@ const tours: Tours = {
   },
 };
 
-function ctx(overrides: Partial<LabelModeValue> = {}): LabelModeValue {
+function ctx(overrides: Partial<AunboardValue> = {}): AunboardValue {
   return {
     mode: "walkthrough",
     setMode: vi.fn(),
@@ -35,11 +35,11 @@ function ctx(overrides: Partial<LabelModeValue> = {}): LabelModeValue {
   };
 }
 
-function renderWalkthrough(value: LabelModeValue) {
+function renderWalkthrough(value: AunboardValue) {
   return render(
-    <LabelModeContext.Provider value={value}>
+    <AunboardContext.Provider value={value}>
       <Walkthrough persist={false} />
-    </LabelModeContext.Provider>,
+    </AunboardContext.Provider>,
   );
 }
 
@@ -81,9 +81,9 @@ describe("Walkthrough", () => {
       },
     };
     render(
-      <LabelModeContext.Provider value={ctx({ tours: missing })}>
+      <AunboardContext.Provider value={ctx({ tours: missing })}>
         <Walkthrough persist={false} waitTimeout={20} />
-      </LabelModeContext.Provider>,
+      </AunboardContext.Provider>,
     );
     await waitFor(() => expect(screen.getByText(/Couldn't find/)).toBeTruthy());
   });
@@ -104,9 +104,9 @@ describe("Walkthrough", () => {
       },
     };
     render(
-      <LabelModeContext.Provider value={ctx({ tours: single })}>
+      <AunboardContext.Provider value={ctx({ tours: single })}>
         <Walkthrough persist={false} />
-      </LabelModeContext.Provider>,
+      </AunboardContext.Provider>,
     );
     await waitFor(() => expect(screen.getByText("Run button")).toBeTruthy());
     fireEvent.click(screen.getByRole("button", { name: "Finish" }));

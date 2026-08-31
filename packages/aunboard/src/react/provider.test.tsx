@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, vi, beforeEach } from "vitest";
 import { act, render, screen, fireEvent, cleanup } from "@testing-library/react";
-import { LabelModeProvider } from "./provider";
-import { useLabelMode } from "./context";
+import { AunboardProvider } from "./provider";
+import { useAunboard } from "./context";
 import type { Tours } from "../tour/types";
 
 afterEach(() => {
@@ -18,7 +18,7 @@ const tours: Tours = {
 };
 
 function Probe() {
-  const { mode, setMode, activeTourId } = useLabelMode();
+  const { mode, setMode, activeTourId } = useAunboard();
   return (
     <div>
       <span data-testid="mode">{mode}</span>
@@ -28,22 +28,22 @@ function Probe() {
   );
 }
 
-describe("LabelModeProvider", () => {
+describe("AunboardProvider", () => {
   it("renders children only (no overlay) when disabled", () => {
     render(
-      <LabelModeProvider enabled={false}>
+      <AunboardProvider enabled={false}>
         <div>app</div>
-      </LabelModeProvider>,
+      </AunboardProvider>,
     );
     expect(screen.getByText("app")).toBeTruthy();
-    expect(document.querySelector("[data-label-mode-overlay]")).toBeNull();
+    expect(document.querySelector("[data-aunboard-overlay]")).toBeNull();
   });
 
   it("defaults the active tour to the first tour", () => {
     render(
-      <LabelModeProvider tours={tours} enabled>
+      <AunboardProvider tours={tours} enabled>
         <Probe />
-      </LabelModeProvider>,
+      </AunboardProvider>,
     );
     expect(screen.getByTestId("tour").textContent).toBe("onboard");
     expect(screen.getByTestId("mode").textContent).toBe("off");
@@ -52,16 +52,16 @@ describe("LabelModeProvider", () => {
   it("switching to explore mounts the overlay when a tour with steps is provided", () => {
     document.body.innerHTML = "";
     render(
-      <LabelModeProvider tours={tours} enabled>
+      <AunboardProvider tours={tours} enabled>
         <Probe />
-      </LabelModeProvider>,
+      </AunboardProvider>,
     );
     // Put an element the locator can resolve
     const btn = document.createElement("button");
     btn.setAttribute("aria-label", "Run");
     document.body.appendChild(btn);
     fireEvent.click(screen.getByText("go-explore"));
-    expect(document.querySelector("[data-label-mode-overlay]")).not.toBeNull();
+    expect(document.querySelector("[data-aunboard-overlay]")).not.toBeNull();
   });
 
   it("throws on an invalid tour (missing locator) at startup", () => {
@@ -76,9 +76,9 @@ describe("LabelModeProvider", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() =>
       render(
-        <LabelModeProvider tours={bad} enabled>
+        <AunboardProvider tours={bad} enabled>
           <div>app</div>
-        </LabelModeProvider>,
+        </AunboardProvider>,
       ),
     ).toThrow(/missing a valid locator/);
     spy.mockRestore();
@@ -90,31 +90,31 @@ describe("LabelModeProvider", () => {
     document.body.appendChild(btn);
     await act(async () => {
       render(
-        <LabelModeProvider tours={tours} enabled defaultMode="explore">
+        <AunboardProvider tours={tours} enabled defaultMode="explore">
           <div />
-        </LabelModeProvider>,
+        </AunboardProvider>,
       );
     });
-    expect(document.querySelector("[data-label-mode-overlay]")).not.toBeNull();
+    expect(document.querySelector("[data-aunboard-overlay]")).not.toBeNull();
   });
 
   it("does not activate via the shortcut when disabled", () => {
     render(
-      <LabelModeProvider enabled={false}>
+      <AunboardProvider enabled={false}>
         <div>app</div>
-      </LabelModeProvider>,
+      </AunboardProvider>,
     );
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "/", metaKey: true }));
-    expect(document.querySelector("[data-label-mode-overlay]")).toBeNull();
+    expect(document.querySelector("[data-aunboard-overlay]")).toBeNull();
   });
 
   it("throws when defaultTourId is not present in tours", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() =>
       render(
-        <LabelModeProvider tours={tours} defaultTourId="nope" enabled>
+        <AunboardProvider tours={tours} defaultTourId="nope" enabled>
           <div>app</div>
-        </LabelModeProvider>,
+        </AunboardProvider>,
       ),
     ).toThrow(/defaultTourId "nope" is not present/);
     spy.mockRestore();
@@ -142,14 +142,14 @@ describe("LabelModeProvider", () => {
     document.body.appendChild(btn);
 
     render(
-      <LabelModeProvider
+      <AunboardProvider
         tours={{}}
         enabled
         defaultMode="walkthrough"
         record={{ tour: { id: "rec-tour", name: "Recorded Tour" } }}
       >
         <div />
-      </LabelModeProvider>,
+      </AunboardProvider>,
     );
 
     // The walkthrough should eventually start and show the step label/narration.
@@ -157,7 +157,7 @@ describe("LabelModeProvider", () => {
     expect(await screen.findByText("Launch button")).toBeTruthy();
   });
 
-  it("a localStorage recording wins over static tour steps in Explore", async () => {
+  it("a localStorage recording wins over static tour steps while authoring", async () => {
     const { saveRecording } = await import("../record/storage");
 
     // Static tour has a step labelled "Placeholder"
@@ -193,15 +193,70 @@ describe("LabelModeProvider", () => {
     btn.setAttribute("aria-label", "Recorded");
     document.body.appendChild(btn);
 
+    // `record` marks this as an authoring session, which is what unlocks the merge.
     render(
-      <LabelModeProvider tours={staticTours} enabled defaultMode="explore">
+      <AunboardProvider
+        tours={staticTours}
+        enabled
+        defaultMode="explore"
+        record={{ tour: { id: "demo", name: "Demo" } }}
+      >
         <div />
-      </LabelModeProvider>,
+      </AunboardProvider>,
     );
 
     // The localStorage recording wins: badge shows "Recorded", not "Placeholder"
     expect(screen.getByText("Recorded")).toBeTruthy();
     expect(screen.queryByText("Placeholder")).toBeNull();
+  });
+
+  it("ignores a localStorage recording when not authoring (staging safety)", async () => {
+    // Regression guard. The docs recommend `enabled` for staging/demo builds. Without the
+    // authoring gate, any visitor holding a stale recording in their own browser would see
+    // THEIR tour instead of the committed one, silently. Committed tours must win.
+    const { saveRecording } = await import("../record/storage");
+
+    const staticTours: Tours = {
+      demo: {
+        id: "demo",
+        name: "Demo",
+        steps: [
+          {
+            locator: { tag: "button", role: { role: "button", name: "Committed" } },
+            label: "Committed",
+            description: "The tour that shipped.",
+          },
+        ],
+      },
+    };
+
+    saveRecording({
+      id: "demo",
+      name: "Demo",
+      steps: [
+        {
+          locator: { tag: "button", role: { role: "button", name: "Stale" } },
+          label: "Stale",
+          description: "Left over in a visitor's localStorage.",
+        },
+      ],
+    });
+
+    for (const name of ["Committed", "Stale"]) {
+      const b = document.createElement("button");
+      b.setAttribute("aria-label", name);
+      document.body.appendChild(b);
+    }
+
+    // No `record` prop — this is a delivery build, not an authoring session.
+    render(
+      <AunboardProvider tours={staticTours} enabled defaultMode="explore">
+        <div />
+      </AunboardProvider>,
+    );
+
+    expect(screen.getByText("Committed")).toBeTruthy();
+    expect(screen.queryByText("Stale")).toBeNull();
   });
 
 });

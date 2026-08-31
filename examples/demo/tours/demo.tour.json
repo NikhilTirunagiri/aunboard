@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "tour": {
+    "id": "demo",
+    "name": "Product Demo",
+    "description": "A six-stop tour of the Northwind demo, spanning the dashboard, projects and settings.",
+    "steps": [
+      {
+        "route": "/",
+        "label": "Key metrics",
+        "description": "The health of the workspace at a glance. The row is named with aria-label, so this step keeps pointing at it no matter how the numbers inside change.",
+        "locator": {
+          "tag": "section",
+          "role": { "role": "region", "name": "Key metrics" }
+        }
+      },
+      {
+        "route": "/",
+        "label": "Create a project",
+        "description": "The primary action on the dashboard. Its accessible name is the button's own text, which is exactly what the locator matches on.",
+        "locator": {
+          "tag": "button",
+          "role": { "role": "button", "name": "Create project" }
+        }
+      },
+      {
+        "route": "/projects",
+        "label": "Filter projects",
+        "description": "Type here to narrow the table by project name or owner. The input is found by its <label for> text, not by its position in the toolbar.",
+        "locator": {
+          "tag": "input",
+          "role": { "role": "searchbox", "name": "Filter projects" }
+        }
+      },
+      {
+        "route": "/projects",
+        "label": "The projects table",
+        "description": "Every project in the workspace. The table carries aria-label=\"Projects\", which is what makes a step on a data-driven element durable — no row text, no index.",
+        "locator": {
+          "tag": "table",
+          "role": { "role": "table", "name": "Projects" }
+        }
+      },
+      {
+        "route": "/settings",
+        "label": "Workspace name",
+        "description": "Rename the workspace. A real <label for> gives the field an accessible name, so this step survives a redesign of the form around it.",
+        "locator": {
+          "tag": "input",
+          "role": { "role": "textbox", "name": "Workspace name" }
+        }
+      },
+      {
+        "route": "/settings",
+        "label": "Save changes",
+        "description": "Nothing is persisted until you save. That is the end of the tour — press Esc or the mode switch to leave.",
+        "locator": {
+          "tag": "button",
+          "role": { "role": "button", "name": "Save changes" }
+        }
+      }
+    ]
+  }
+}

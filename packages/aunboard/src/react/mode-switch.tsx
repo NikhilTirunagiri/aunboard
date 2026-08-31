@@ -1,14 +1,14 @@
-import { useLabelMode, type LabelMode } from "./context";
+import { useAunboard, type AunboardMode } from "./context";
 
 const TOP_Z = 2147483647;
-const MODES: { value: LabelMode; label: string }[] = [
+const MODES: { value: AunboardMode; label: string }[] = [
   { value: "off", label: "Off" },
   { value: "explore", label: "Explore" },
   { value: "walkthrough", label: "Walkthrough" },
 ];
 
 export function ModeSwitch() {
-  const { mode, setMode, tours, activeTourId, setActiveTourId } = useLabelMode();
+  const { mode, setMode, tours, activeTourId, setActiveTourId } = useAunboard();
   const tourIds = Object.keys(tours);
   const hasTours = tourIds.length > 0;
 

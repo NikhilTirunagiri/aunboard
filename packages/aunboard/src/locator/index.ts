@@ -4,3 +4,5 @@ export { resolveLocator, matchElements } from "./resolve";
 export { implicitRole, accessibleName, normalizeText, TEXT_CAP } from "./accessible-name";
 export { cssPath, isStableId, cssEscape } from "./css-path";
 export { activateElement } from "./activate";
+export { scoreLocator, locatorSignals, isStamped, SIGNAL_SCORE, TIER_MAX } from "./score";
+export type { SignalKind } from "./score";

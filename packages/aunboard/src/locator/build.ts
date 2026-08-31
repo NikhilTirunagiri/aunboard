@@ -1,10 +1,12 @@
-// packages/label-mode/src/locator/build.ts
 import type { ElementLocator } from "./types";
 import { implicitRole, accessibleName, normalizeText } from "./accessible-name";
 import { matchElements } from "./resolve";
 import { cssPath, isStableId } from "./css-path";
 
-const HOOK_ATTRS = ["data-explain", "data-testid", "data-test"];
+// Ordered by durability. `data-aun` is stamped at build time by @aunboard/vite from the
+// committed tours, so it is the most durable signal that exists: it survives copy edits,
+// restyling, reordering and data changes. The rest are hooks a host app may already have.
+const HOOK_ATTRS = ["data-aun", "data-explain", "data-testid", "data-test"];
 
 function findHook(el: Element): { attr: string; value: string } | undefined {
   for (const attr of HOOK_ATTRS) {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { nextMode, installModeShortcut } from "./toggle";
-import type { LabelMode } from "./context";
+import type { AunboardMode } from "./context";
 
 describe("nextMode", () => {
   it("cycles off -> explore -> walkthrough -> off when tours exist", () => {
@@ -16,8 +16,8 @@ describe("nextMode", () => {
 
 describe("installModeShortcut", () => {
   it("cycles mode on Cmd/Ctrl+/ and uninstalls cleanly", () => {
-    let mode: LabelMode = "off";
-    const setMode = (u: (p: LabelMode) => LabelMode) => {
+    let mode: AunboardMode = "off";
+    const setMode = (u: (p: AunboardMode) => AunboardMode) => {
       mode = u(mode);
     };
     const uninstall = installModeShortcut(setMode, () => true);
@@ -33,8 +33,8 @@ describe("installModeShortcut", () => {
   });
 
   it("also responds to Ctrl+/", () => {
-    let mode: LabelMode = "off";
-    const setMode = (u: (p: LabelMode) => LabelMode) => {
+    let mode: AunboardMode = "off";
+    const setMode = (u: (p: AunboardMode) => AunboardMode) => {
       mode = u(mode);
     };
     const uninstall = installModeShortcut(setMode, () => true);
@@ -46,7 +46,7 @@ describe("installModeShortcut", () => {
 
 describe('"record" is NOT in the keyboard cycle', () => {
   it("nextMode never produces 'record' from any input", () => {
-    const allInputs: LabelMode[] = ["off", "explore", "walkthrough", "record"];
+    const allInputs: AunboardMode[] = ["off", "explore", "walkthrough", "record"];
     for (const m of allInputs) {
       expect(nextMode(m, true)).not.toBe("record");
       expect(nextMode(m, false)).not.toBe("record");
@@ -54,8 +54,8 @@ describe('"record" is NOT in the keyboard cycle', () => {
   });
 
   it("keyboard shortcut starting from 'record' falls back to off (not record)", () => {
-    let mode: LabelMode = "record";
-    const setMode = (u: (p: LabelMode) => LabelMode) => {
+    let mode: AunboardMode = "record";
+    const setMode = (u: (p: AunboardMode) => AunboardMode) => {
       mode = u(mode);
     };
     const uninstall = installModeShortcut(setMode, () => true);
@@ -66,9 +66,9 @@ describe('"record" is NOT in the keyboard cycle', () => {
   });
 
   it("full cycle off -> explore -> walkthrough -> off never touches record", () => {
-    const steps: LabelMode[] = [];
-    let mode: LabelMode = "off";
-    const setMode = (u: (p: LabelMode) => LabelMode) => {
+    const steps: AunboardMode[] = [];
+    let mode: AunboardMode = "off";
+    const setMode = (u: (p: AunboardMode) => AunboardMode) => {
       mode = u(mode);
       steps.push(mode);
     };

@@ -20,8 +20,8 @@ describe("meaningfulTarget", () => {
   it("returns null for body / empty-space clicks", () => {
     expect(meaningfulTarget(document.body)).toBeNull();
   });
-  it("ignores label-mode's own UI (data-lm-ui subtree)", () => {
-    document.body.innerHTML = `<div data-lm-ui><button id="ui">x</button></div>`;
+  it("ignores aunboard's own UI (data-aun-ui subtree)", () => {
+    document.body.innerHTML = `<div data-aun-ui><button id="ui">x</button></div>`;
     expect(meaningfulTarget(document.getElementById("ui")!)).toBeNull();
   });
   it("recognizes a multi-token explicit role (normalized to its first token)", () => {

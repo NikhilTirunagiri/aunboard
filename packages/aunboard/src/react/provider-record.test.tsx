@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { act, render, screen, cleanup } from "@testing-library/react";
-import { LabelModeProvider } from "./provider";
+import { AunboardProvider } from "./provider";
 import type { Tours } from "../tour/types";
 
 // Hoisted mock so Vitest intercepts the dynamic import("../record/index.js") in provider.tsx
@@ -23,18 +23,18 @@ const tours: Tours = {
   },
 };
 
-describe("LabelModeProvider – record mode", () => {
+describe("AunboardProvider – record mode", () => {
   it("dynamically mounts RecordController when mode is record", async () => {
     await act(async () => {
       render(
-        <LabelModeProvider
+        <AunboardProvider
           tours={tours}
           enabled
           defaultMode="record"
           record={{ tour: { id: "demo", name: "Demo" } }}
         >
           <div />
-        </LabelModeProvider>,
+        </AunboardProvider>,
       );
     });
 

@@ -1,11 +1,13 @@
 # `aunboard`
 
-A dev/staging overlay that turns any React app into a self-documenting one. It adds two modes:
+A React overlay that turns any app into a self-documenting one — in dev, in staging, and in production. It adds two modes:
 
 - **Explore** — every recorded element gets a floating badge with a label + description.
 - **Walkthrough** — a spotlight tour that steps through recorded elements one-by-one, navigating between pages automatically.
 
-You author both by **clicking elements in your running app**. Each click captures a durable DOM **locator** — no source edits, no sidecar, no `data-explain` attributes. Recordings live in `localStorage` and export to a portable JSON file you commit to your repo.
+You author both by **clicking elements in your running app**. Each click captures a durable DOM **locator** — no source edits, no sidecar, no hand-written selectors. Tours export to a portable JSON file you **commit to your repo**, and CI replays them on every PR so a tour can't silently break.
+
+Unlike hosted tour tools, your demos live in version control next to the code they describe. When a PR changes the UI, the PR that broke the tour is the PR that fails.
 
 ---
 
@@ -13,6 +15,7 @@ You author both by **clicking elements in your running app**. Each click capture
 
 - **[Integration prompt](docs/integration-prompt.md)** — paste-into-your-agent prompt to integrate aunboard into any app, hands-free.
 - **[Integration guide](docs/integration.md)** — full host-app setup: install, mount, navigation, record, commit, staging.
+- **[Running in production](docs/production.md)** — shipping the overlay to real users: enabling it, the build plugin, CI verification, failure behaviour.
 - **[Authoring tour-friendly UI](docs/authoring-tour-friendly-ui.md)** — write components so tours stay durable (and a drop-in rules block for your repo's `CLAUDE.md`).
 
 The quick version follows below.
@@ -33,29 +36,29 @@ npm i aunboard      # or: pnpm add aunboard / yarn add aunboard
 ## Mount the provider
 
 ```tsx
-// your-app/src/app/LabelMode.tsx
+// your-app/src/app/Aunboard.tsx
 "use client";
 import { useRouter } from "next/navigation";
-import { LabelModeProvider, useLabelMode } from "aunboard";
+import { AunboardProvider, useAunboard } from "aunboard";
 import { tours } from "../../aunboard.tours"; // {} to start; import your exported tour later
 
-export function LabelMode({ children }: { children: React.ReactNode }) {
+export function Aunboard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   return (
-    <LabelModeProvider
+    <AunboardProvider
       tours={tours}
       navigate={(path) => router.push(path)}
       record={{ tour: { id: "demo", name: "Product Demo" } }}
     >
       {children}
       <RecordButton />
-    </LabelModeProvider>
+    </AunboardProvider>
   );
 }
 
 // A dev-only entry into Record mode (it's intentionally not in the keyboard cycle).
 function RecordButton() {
-  const { mode, setMode } = useLabelMode();
+  const { mode, setMode } = useAunboard();
   if (process.env.NODE_ENV === "production") return null;
   return (
     <button onClick={() => setMode(mode === "record" ? "off" : "record")}
@@ -66,7 +69,7 @@ function RecordButton() {
 }
 ```
 
-Render `<LabelMode>` around your app in `layout.tsx`. That's the whole integration.
+Render `<Aunboard>` around your app in `layout.tsx`. That's the whole integration.
 
 | prop | default | purpose |
 |---|---|---|
@@ -106,7 +109,7 @@ It's wrapped in a small version envelope (`{ version: 1, tour: {...} }`).
 
 **What you do with it:**
 1. **Commit it to your repo.** Without exporting, a recording lives only in your browser's `localStorage` — it's gone if you clear storage and invisible to teammates. The JSON makes it permanent and shareable.
-2. **Import it as the `tours` prop** on `LabelModeProvider`. Then anyone who clones the repo gets the exact same Explore badges and Walkthrough tour — **no re-recording, no sidecar, no setup**.
+2. **Import it as the `tours` prop** on `AunboardProvider`. Then anyone who clones the repo gets the exact same Explore badges and Walkthrough tour — **no re-recording, no sidecar, no setup**.
 3. **Replay it anywhere**, including staging/demo builds, because re-finding elements from locators needs no source edits or dev server.
 
 In short: it's how a recording made by clicking around in your browser becomes a real, durable onboarding asset that travels with your codebase and works for everyone else.
@@ -120,12 +123,66 @@ export const tours: Tours = { demo: demoTour };
 
 ---
 
+## How tours stay durable
+
+Re-finding an element after the UI changed is the whole problem. aunboard resolves each step
+through a ladder of signals, strongest first, and **refuses to guess** rather than highlight the
+wrong element.
+
+| # | Signal | Durability | Survives |
+|---|---|---|---|
+| 1 | `data-aun` — build-stamped from your committed tours | ~100% | copy edits, restyling, reordering, data changes |
+| 2 | An existing hook (`data-explain`, `data-testid`, stable `id`) | ~100% | everything except deleting the attribute |
+| 3 | ARIA role + accessible name | ~95% | restyling, reordering, data changes |
+| 4 | Visible text, scoped ancestor, positional index | 60–80% | little — reported as not-found when it drifts |
+| 5 | **Nothing matched → the step reports not-found** | — | — |
+
+Tier 5 is a feature. A missing step is a recoverable event a viewer understands; a confidently
+**wrong** highlight is a lie that discredits every other step in the tour. aunboard captures a
+structural CSS path but deliberately never falls back to it, and only trusts a positional index
+when the candidate count is unchanged since recording.
+
+Tiers 3–5 need nothing from your app. **Tier 1 is what takes you to 99.9%**, and it costs one
+line in your build config.
+
+### Tier 1: stamp stable IDs at build time
+
+```ts
+// vite.config.ts
+import { aunboard } from "@aunboard/vite";
+
+export default defineConfig({
+  plugins: [react(), aunboard()],
+});
+```
+
+The plugin reads your **committed tours** and stamps `data-aun` onto only the elements those
+tours actually reference — so a production build carries a handful of extra attributes, not
+thousands. IDs are component-scoped (`PricingCard.b1`) and tracked in a committed
+`aunboard.ids.json`, which re-matches them across file moves, component renames and reordering.
+
+Your source files are never edited. The committed demo becomes the build contract.
+
+### Verify tours in CI
+
+```bash
+pnpm aunboard verify --url http://localhost:4173 --reporter github
+```
+
+Replays every committed tour against a real build and exits non-zero when a step can no longer
+resolve, annotating the PR with the tour, step and reason. Wire it up with the
+[`verify-tours.yml`](.github/workflows/verify-tours.yml) workflow.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Fix |
 |---|---|
 | "Invalid hook call" | Duplicate React — add `transpilePackages` (Next) / `resolve.dedupe` (Vite). |
-| Nothing mounts in production | Expected. Set `enabled={true}` (or gate on an env flag) for staging demos. |
+| Nothing mounts in production | Expected by default. Set `enabled={true}` (or gate on an env flag) to ship the overlay. |
+| A tour looks different for one teammate | They have a stale local recording. Recordings only override committed tours while authoring (`record` set, non-production build) — outside that, the committed tour always wins. |
+| A step broke and CI didn't catch it | The tour isn't in the `verify` glob, or `verify-tours.yml` isn't wired to a real build of the app. |
 | Badge/step missing at replay | The element's text or role changed since recording — Alt+click it again and re-save. |
 | Step on a table/list/dynamic element keeps disappearing | Locators for elements with no stable name fall back to **visible text** or a **positional index** — both move when data changes, so the step reports not-found (by design, never a wrong-element guess). Fix: give the element a real accessible name (`aria-label` on a table/region, a `<label>` on an input) — aunboard reads those and the step becomes durable. See [Authoring tour-friendly UI](docs/authoring-tour-friendly-ui.md). |
 | Walkthrough step times out | `navigate` not wired, or the step's `route` is wrong for that element. |

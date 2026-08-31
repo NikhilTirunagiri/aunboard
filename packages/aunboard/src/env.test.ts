@@ -1,17 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { isLabelModeEnabled } from "./env";
+import { isAunboardEnabled } from "./env";
 
-describe("isLabelModeEnabled", () => {
+describe("isAunboardEnabled", () => {
   it("is enabled in development", () => {
-    expect(isLabelModeEnabled("development", undefined)).toBe(true);
+    expect(isAunboardEnabled("development", undefined)).toBe(true);
   });
   it("is disabled in production by default", () => {
-    expect(isLabelModeEnabled("production", undefined)).toBe(false);
+    expect(isAunboardEnabled("production", undefined)).toBe(false);
   });
   it("can be force-enabled in production via explicit flag (for staging builds)", () => {
-    expect(isLabelModeEnabled("production", true)).toBe(true);
+    expect(isAunboardEnabled("production", true)).toBe(true);
   });
   it("can be force-disabled even in development", () => {
-    expect(isLabelModeEnabled("development", false)).toBe(false);
+    expect(isAunboardEnabled("development", false)).toBe(false);
   });
 });

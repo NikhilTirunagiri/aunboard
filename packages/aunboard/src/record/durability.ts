@@ -1,4 +1,5 @@
 import type { ElementLocator } from "../locator";
+import { scoreLocator, isStamped } from "../locator/score";
 
 export type DurabilityTier = "stable" | "weak" | "fragile";
 
@@ -6,6 +7,8 @@ export interface Durability {
   tier: DurabilityTier;
   /** One-line explanation + remedy, shown to the author at record time. */
   reason: string;
+  /** Numeric durability score (lower is better). See locator/score.ts. */
+  score: number;
 }
 
 // Roles whose accessible name is meant to come from a label/attribute — NOT their own text.
@@ -26,37 +29,45 @@ const CONTAINER_ROLES = new Set([
  * - fragile: relies on positional `nth` (breaks the moment the match count changes).
  */
 export function locatorDurability(loc: ElementLocator): Durability {
+  const score = scoreLocator(loc);
+  const rate = (tier: DurabilityTier, reason: string): Durability => ({ tier, reason, score });
+
+  // A build-stamped id is derived from the component tree rather than the rendered output,
+  // so it is immune to the copy/data/order changes that break every other signal.
+  if (isStamped(loc)) {
+    return rate("stable", `Locked — build-stamped as ${loc.hook!.value}. Immune to copy, data and layout changes.`);
+  }
   if (loc.hook) {
-    return { tier: "stable", reason: `Durable — matched by ${loc.hook.attr}="${loc.hook.value}".` };
+    return rate("stable", `Durable — matched by ${loc.hook.attr}="${loc.hook.value}".`);
   }
   if (loc.nth !== undefined) {
     const where = loc.scope ? "this section" : "the page";
     const pos = loc.nthOf !== undefined ? ` (${loc.nth + 1} of ${loc.nthOf})` : "";
-    return {
-      tier: "fragile",
-      reason: `Matched by position${pos} — not unique here, so it breaks if ${where} changes. Give it a unique name or data-explain.`,
-    };
+    return rate(
+      "fragile",
+      `Matched by position${pos} — not unique here, so it breaks if ${where} changes. Give it a unique name or data-explain.`,
+    );
   }
   if (loc.role?.name) {
     if (CONTAINER_ROLES.has(loc.role.role) && loc.role.name === loc.text) {
-      return {
-        tier: "weak",
-        reason: `Name is taken from its contents — drifts when the data changes. Add an aria-label, <caption>, or <legend>.`,
-      };
+      return rate(
+        "weak",
+        `Name is taken from its contents — drifts when the data changes. Add an aria-label, <caption>, or <legend>.`,
+      );
     }
-    return { tier: "stable", reason: `Durable — matched by ${loc.role.role} "${loc.role.name}".` };
+    return rate("stable", `Durable — matched by ${loc.role.role} "${loc.role.name}".`);
   }
   if (loc.role) {
-    return {
-      tier: "weak",
-      reason: `Matched by role "${loc.role.role}" with no name. Add an accessible name to keep it stable.`,
-    };
+    return rate(
+      "weak",
+      `Matched by role "${loc.role.role}" with no name. Add an accessible name to keep it stable.`,
+    );
   }
   if (loc.text) {
-    return {
-      tier: "weak",
-      reason: `Matched by visible text — breaks if the text changes. Add a stable name or data-explain.`,
-    };
+    return rate(
+      "weak",
+      `Matched by visible text — breaks if the text changes. Add a stable name or data-explain.`,
+    );
   }
-  return { tier: "weak", reason: `Low-confidence match. Add a stable name or data-explain.` };
+  return rate("weak", `Low-confidence match. Add a stable name or data-explain.`);
 }

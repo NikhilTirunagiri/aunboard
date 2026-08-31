@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useLabelMode } from "./context";
+import { useAunboard } from "./context";
 import { useTour } from "../tour/controller";
 import { isLastStep } from "../tour/machine";
 import { Spotlight } from "./spotlight";
@@ -9,7 +9,7 @@ import type { NavigateFn } from "../tour/navigation";
 const TOP_Z = 2147483647;
 
 export function Walkthrough({ navigate, persist, waitTimeout }: { navigate?: NavigateFn; persist: boolean; waitTimeout?: number }) {
-  const { tours, activeTourId, setMode } = useLabelMode();
+  const { tours, activeTourId, setMode } = useAunboard();
   const tour = activeTourId ? tours[activeTourId] ?? null : null;
   const t = useTour(tour, { navigate, persist, waitTimeout });
   const [, setTick] = useState(0);

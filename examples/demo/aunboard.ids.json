@@ -1,0 +1,593 @@
+{
+  "version": 1,
+  "ids": {
+    "App.a1": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "aside",
+      "sig": "932c2d"
+    },
+    "App.d1": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "App.d2": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "App.d3": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "App.k1": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "kbd",
+      "sig": "4c95ed"
+    },
+    "App.k2": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "kbd",
+      "sig": "032b9a"
+    },
+    "App.k3": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "kbd",
+      "sig": "2dd8bb"
+    },
+    "App.m1": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "main",
+      "sig": "4ba337"
+    },
+    "App.n1": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "nav",
+      "sig": "5c24c0"
+    },
+    "App.p1": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "p",
+      "sig": "c1427b"
+    },
+    "App.s1": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "span",
+      "sig": "2d1995"
+    },
+    "App.s2": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "span",
+      "sig": "2fe29f"
+    },
+    "App.s3": {
+      "file": "src/App.tsx",
+      "component": "App",
+      "tag": "span",
+      "sig": "0b6eff"
+    },
+    "Dashboard.a1": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "article",
+      "sig": "653853"
+    },
+    "Dashboard.b1": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "button",
+      "sig": "b39323"
+    },
+    "Dashboard.d1": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Dashboard.d2": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "div",
+      "sig": "9fc58a"
+    },
+    "Dashboard.h1": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "header",
+      "sig": "772023"
+    },
+    "Dashboard.h2": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "h1",
+      "sig": "054e5e"
+    },
+    "Dashboard.h3": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "h2",
+      "sig": "698b37"
+    },
+    "Dashboard.l1": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "li",
+      "sig": "646b00"
+    },
+    "Dashboard.p1": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "p",
+      "sig": "9a1e1d"
+    },
+    "Dashboard.p2": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "p",
+      "sig": "4eb15d"
+    },
+    "Dashboard.p3": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "p",
+      "sig": "6af90e"
+    },
+    "Dashboard.p4": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "p",
+      "sig": "6af90e"
+    },
+    "Dashboard.p5": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "p",
+      "sig": "6af90e"
+    },
+    "Dashboard.s1": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "section",
+      "sig": "3a222a"
+    },
+    "Dashboard.s2": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "section",
+      "sig": "3a222a"
+    },
+    "Dashboard.s3": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "span",
+      "sig": "0b6eff"
+    },
+    "Dashboard.s4": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "span",
+      "sig": "9c5e23"
+    },
+    "Dashboard.s5": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "strong",
+      "sig": "65af10"
+    },
+    "Dashboard.s6": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "span",
+      "sig": "9c5e23"
+    },
+    "Dashboard.u1": {
+      "file": "src/pages/Dashboard.tsx",
+      "component": "Dashboard",
+      "tag": "ul",
+      "sig": "3c727e"
+    },
+    "Link.a1": {
+      "file": "src/router.tsx",
+      "component": "Link",
+      "tag": "a",
+      "sig": "8d49c9"
+    },
+    "NotFound.c1": {
+      "file": "src/pages/NotFound.tsx",
+      "component": "NotFound",
+      "tag": "code",
+      "sig": "94577e"
+    },
+    "NotFound.d1": {
+      "file": "src/pages/NotFound.tsx",
+      "component": "NotFound",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "NotFound.d2": {
+      "file": "src/pages/NotFound.tsx",
+      "component": "NotFound",
+      "tag": "div",
+      "sig": "9fc58a"
+    },
+    "NotFound.h1": {
+      "file": "src/pages/NotFound.tsx",
+      "component": "NotFound",
+      "tag": "header",
+      "sig": "772023"
+    },
+    "NotFound.h2": {
+      "file": "src/pages/NotFound.tsx",
+      "component": "NotFound",
+      "tag": "h1",
+      "sig": "162c56"
+    },
+    "NotFound.p1": {
+      "file": "src/pages/NotFound.tsx",
+      "component": "NotFound",
+      "tag": "p",
+      "sig": "48052b"
+    },
+    "NotFound.p2": {
+      "file": "src/pages/NotFound.tsx",
+      "component": "NotFound",
+      "tag": "p",
+      "sig": "5a542c"
+    },
+    "Projects.b1": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "button",
+      "sig": "4cb85a"
+    },
+    "Projects.b2": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "button",
+      "sig": "479b82"
+    },
+    "Projects.d1": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Projects.d2": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "div",
+      "sig": "9fc58a"
+    },
+    "Projects.d3": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Projects.d4": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Projects.h1": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "header",
+      "sig": "772023"
+    },
+    "Projects.h2": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "h1",
+      "sig": "71bdb4"
+    },
+    "Projects.i1": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "input",
+      "sig": "9490b6"
+    },
+    "Projects.l1": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "label",
+      "sig": "63e481"
+    },
+    "Projects.p1": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "p",
+      "sig": "1da385"
+    },
+    "Projects.s1": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "span",
+      "sig": "7d344d"
+    },
+    "Projects.s2": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "span",
+      "sig": "963a07"
+    },
+    "Projects.s3": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "span",
+      "sig": "9c5e23"
+    },
+    "Projects.s4": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "span",
+      "sig": "2971ae"
+    },
+    "Projects.t1": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "table",
+      "sig": "3375fa"
+    },
+    "Projects.t10": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "tr",
+      "sig": "23d170"
+    },
+    "Projects.t11": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "td",
+      "sig": "4307f5"
+    },
+    "Projects.t12": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "td",
+      "sig": "9864f7"
+    },
+    "Projects.t13": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "td",
+      "sig": "9864f7"
+    },
+    "Projects.t14": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "td",
+      "sig": "4307f5"
+    },
+    "Projects.t15": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "td",
+      "sig": "4307f5"
+    },
+    "Projects.t16": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "tr",
+      "sig": "b43a3e"
+    },
+    "Projects.t17": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "td",
+      "sig": "789b8f"
+    },
+    "Projects.t2": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "thead",
+      "sig": "7844b5"
+    },
+    "Projects.t3": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "tr",
+      "sig": "b43a3e"
+    },
+    "Projects.t4": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "th",
+      "sig": "6f1430"
+    },
+    "Projects.t5": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "th",
+      "sig": "ff7845"
+    },
+    "Projects.t6": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "th",
+      "sig": "ffd047"
+    },
+    "Projects.t7": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "th",
+      "sig": "a9ae04"
+    },
+    "Projects.t8": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "th",
+      "sig": "389e48"
+    },
+    "Projects.t9": {
+      "file": "src/pages/Projects.tsx",
+      "component": "Projects",
+      "tag": "tbody",
+      "sig": "d27f3c"
+    },
+    "RecordButton.b1": {
+      "file": "src/Aunboard.tsx",
+      "component": "RecordButton",
+      "tag": "button",
+      "sig": "307cf1"
+    },
+    "Settings.b1": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "button",
+      "sig": "7cfe59"
+    },
+    "Settings.b2": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "button",
+      "sig": "5fa8a4"
+    },
+    "Settings.d1": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Settings.d2": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "div",
+      "sig": "9fc58a"
+    },
+    "Settings.d3": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Settings.d4": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Settings.d5": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Settings.d6": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "div",
+      "sig": "9fc58a"
+    },
+    "Settings.d7": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "div",
+      "sig": "fbf478"
+    },
+    "Settings.f1": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "form",
+      "sig": "7697fb"
+    },
+    "Settings.h1": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "header",
+      "sig": "772023"
+    },
+    "Settings.h2": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "h1",
+      "sig": "ca7175"
+    },
+    "Settings.h3": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "h2",
+      "sig": "8eb89e"
+    },
+    "Settings.i1": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "input",
+      "sig": "bafe10"
+    },
+    "Settings.i2": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "input",
+      "sig": "bafe10"
+    },
+    "Settings.l1": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "label",
+      "sig": "319d17"
+    },
+    "Settings.l2": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "label",
+      "sig": "6e02a2"
+    },
+    "Settings.p1": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "p",
+      "sig": "c362ee"
+    },
+    "Settings.p2": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "p",
+      "sig": "1a34d3"
+    },
+    "Settings.p3": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "p",
+      "sig": "1752ed"
+    },
+    "Settings.p4": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "p",
+      "sig": "783d9c"
+    },
+    "Settings.p5": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "p",
+      "sig": "49d7e8"
+    },
+    "Settings.s1": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "span",
+      "sig": "0b6eff"
+    },
+    "Settings.s2": {
+      "file": "src/pages/Settings.tsx",
+      "component": "Settings",
+      "tag": "span",
+      "sig": "c80b79"
+    }
+  }
+}

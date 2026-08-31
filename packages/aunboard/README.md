@@ -20,14 +20,14 @@ npm i aunboard      # or: pnpm add aunboard / yarn add aunboard
 
 ```tsx
 "use client";
-import { LabelModeProvider } from "aunboard";
+import { AunboardProvider } from "aunboard";
 import { tours } from "./aunboard.tours"; // {} to start; your exported tour later
 
 export function AunboardMount({ children }: { children: React.ReactNode }) {
   return (
-    <LabelModeProvider tours={tours} record={{ tour: { id: "demo", name: "Product Demo" } }}>
+    <AunboardProvider tours={tours} record={{ tour: { id: "demo", name: "Product Demo" } }}>
       {children}
-    </LabelModeProvider>
+    </AunboardProvider>
   );
 }
 ```

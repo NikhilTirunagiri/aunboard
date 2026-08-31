@@ -12,7 +12,7 @@ describe("captureClick", () => {
     expect(out!.locator.tag).toBe("button");
   });
   it("returns null for own-UI clicks", () => {
-    document.body.innerHTML = `<div data-lm-ui><button id="x">x</button></div>`;
+    document.body.innerHTML = `<div data-aun-ui><button id="x">x</button></div>`;
     expect(captureClick(document.getElementById("x")!)).toBeNull();
   });
 });

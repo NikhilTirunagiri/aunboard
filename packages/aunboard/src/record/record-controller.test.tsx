@@ -58,7 +58,7 @@ describe("RecordController", () => {
 
   const byText = (text: string) =>
     [...document.querySelectorAll("button")].find((b) => b.textContent === text)!;
-  const savedSteps = () => JSON.parse(localStorage.getItem("lm:recording:demo")!).tour.steps;
+  const savedSteps = () => JSON.parse(localStorage.getItem("aun:recording:demo")!).tour.steps;
 
   it("captures a same-page pass-through click as a reveal for the next pick", () => {
     document.body.innerHTML = `<main><button>Cash Flow</button><button>Run</button></main>`;
@@ -100,6 +100,6 @@ describe("RecordController", () => {
     fireEvent.change(screen.getByPlaceholderText(/description/i), { target: { value: "Runs the model." } });
     fireEvent.click(screen.getByRole("button", { name: /save step/i }));
     expect(screen.getByText("Run")).toBeTruthy();
-    expect(localStorage.getItem("lm:recording:demo")).toContain("Run");
+    expect(localStorage.getItem("aun:recording:demo")).toContain("Run");
   });
 });

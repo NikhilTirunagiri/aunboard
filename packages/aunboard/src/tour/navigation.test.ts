@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { resolveNavigate, needsNavigation, currentPath, defaultNavigate } from "./navigation";
+import { resolveNavigate, needsNavigation, currentPath, defaultNavigate, normalizePath } from "./navigation";
 
 afterEach(() => window.history.pushState({}, "", "/")); // pathname persists across tests in a file
 
@@ -30,5 +30,26 @@ describe("navigation adapter", () => {
     window.removeEventListener("popstate", spy);
     expect(spy).toHaveBeenCalled();
     expect(currentPath()).toBe("/again");
+  });
+});
+
+describe("normalizePath", () => {
+  it("treats a trailing slash as the same route", () => {
+    // Static hosts redirect /projects -> /projects/. Without this, a step on /projects
+    // would re-navigate forever on such a host.
+    expect(normalizePath("/projects/")).toBe("/projects");
+    expect(normalizePath("/projects")).toBe("/projects");
+    expect(needsNavigation("/projects", "/projects/")).toBe(false);
+    expect(needsNavigation("/projects/", "/projects")).toBe(false);
+  });
+
+  it("keeps the root path intact", () => {
+    expect(normalizePath("/")).toBe("/");
+    expect(normalizePath("")).toBe("/");
+    expect(needsNavigation("/", "/")).toBe(false);
+  });
+
+  it("still detects a genuinely different route", () => {
+    expect(needsNavigation("/settings", "/projects/")).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { ModeSwitch } from "./mode-switch";
-import { LabelModeContext, type LabelModeValue } from "./context";
+import { AunboardContext, type AunboardValue } from "./context";
 import type { Tours } from "../tour/types";
 
 afterEach(cleanup);
@@ -14,7 +14,7 @@ const tours: Tours = {
   },
 };
 
-function ctx(overrides: Partial<LabelModeValue> = {}): LabelModeValue {
+function ctx(overrides: Partial<AunboardValue> = {}): AunboardValue {
   return {
     mode: "off",
     setMode: vi.fn(),
@@ -25,11 +25,11 @@ function ctx(overrides: Partial<LabelModeValue> = {}): LabelModeValue {
   };
 }
 
-function renderSwitch(value: LabelModeValue) {
+function renderSwitch(value: AunboardValue) {
   return render(
-    <LabelModeContext.Provider value={value}>
+    <AunboardContext.Provider value={value}>
       <ModeSwitch />
-    </LabelModeContext.Provider>,
+    </AunboardContext.Provider>,
   );
 }
 

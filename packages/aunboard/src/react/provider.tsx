@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LabelModeContext, type LabelMode } from "./context";
+import { AunboardContext, type AunboardMode } from "./context";
 import { Overlay } from "./overlay";
 import { Walkthrough } from "./walkthrough";
 import { ModeSwitch } from "./mode-switch";
 import { installModeShortcut } from "./toggle";
 import { validateTours } from "../tour/validate";
-import { isLabelModeEnabled } from "../env";
+import { isAunboardEnabled } from "../env";
 import { loadRecording } from "../record/storage";
 import type { Tours, Tour } from "../tour/types";
 import type { NavigateFn } from "../tour/navigation";
@@ -14,14 +14,14 @@ export interface RecordConfig {
   tour: { id: string; name: string };
 }
 
-export interface LabelModeProviderProps {
+export interface AunboardProviderProps {
   /** Optional tour collection for Explore/Walkthrough modes. */
   tours?: Tours;
   children: React.ReactNode;
-  /** Override the env gate. Defaults to isLabelModeEnabled(NODE_ENV, undefined). */
+  /** Override the env gate. Defaults to isAunboardEnabled(NODE_ENV, undefined). */
   enabled?: boolean;
   /** Mode on first mount. Default "off". */
-  defaultMode?: LabelMode;
+  defaultMode?: AunboardMode;
   /** Tour selected by default in Walkthrough mode. Defaults to the first tour. */
   defaultTourId?: string;
   /** Consumer navigation (e.g. Next's useRouter().push). Falls back to History API. */
@@ -39,7 +39,7 @@ function firstTour(tours: Tours): Tour | null {
   return first ?? null;
 }
 
-export function LabelModeProvider({
+export function AunboardProvider({
   tours = {},
   children,
   enabled,
@@ -49,9 +49,9 @@ export function LabelModeProvider({
   persistProgress = true,
   waitTimeout,
   record,
-}: LabelModeProviderProps) {
-  const active = enabled ?? isLabelModeEnabled(process.env.NODE_ENV, undefined);
-  const [mode, setMode] = useState<LabelMode>(defaultMode);
+}: AunboardProviderProps) {
+  const active = enabled ?? isAunboardEnabled(process.env.NODE_ENV, undefined);
+  const [mode, setMode] = useState<AunboardMode>(defaultMode);
   const [activeTourId, setActiveTourId] = useState<string | null>(
     () => defaultTourId ?? Object.keys(tours)[0] ?? null,
   );
@@ -67,9 +67,20 @@ export function LabelModeProvider({
   // during render: reading it in render makes the first client render differ from
   // the server (which has no localStorage), causing a hydration mismatch. So we keep
   // recordings in state, populated by an effect, and the first render matches SSR.
+  //
+  // Recordings are an AUTHORING convenience, not a delivery mechanism. They are merged only
+  // while authoring — `record` configured AND not a production build. Outside that, the
+  // committed `tours` prop is the single source of truth. This matters because the docs
+  // recommend `enabled` for staging/demo builds: without this gate, any visitor holding a
+  // stale recording in their own localStorage would silently see THEIR version of the tour
+  // instead of the committed one, with nothing to indicate the substitution.
+  const authoring = !!record && process.env.NODE_ENV !== "production";
   const [recordings, setRecordings] = useState<Tours>({});
   useEffect(() => {
-    if (!active) return;
+    if (!active || !authoring) {
+      setRecordings((prev) => (Object.keys(prev).length ? {} : prev));
+      return;
+    }
     const ids = new Set<string>(Object.keys(safeTours));
     if (record) ids.add(record.tour.id);
     const found: Tours = {};
@@ -79,7 +90,7 @@ export function LabelModeProvider({
     }
     setRecordings(found);
     // Re-read when leaving record mode so the freshly recorded steps appear.
-  }, [active, safeTours, record, mode]);
+  }, [active, authoring, safeTours, record, mode]);
 
   // Recordings win over the static tours prop so the latest recording is replayed.
   const liveTours = useMemo<Tours>(() => ({ ...safeTours, ...recordings }), [safeTours, recordings]);
@@ -126,7 +137,7 @@ export function LabelModeProvider({
     : firstTour(liveTours);
 
   return (
-    <LabelModeContext.Provider
+    <AunboardContext.Provider
       value={{ mode, setMode, tours: liveTours, activeTourId, setActiveTourId }}
     >
       {children}
@@ -136,6 +147,6 @@ export function LabelModeProvider({
         <Walkthrough navigate={navigate} persist={persistProgress} waitTimeout={waitTimeout} />
       )}
       {mode === "record" && RC && record && <RC tour={record.tour} />}
-    </LabelModeContext.Provider>
+    </AunboardContext.Provider>
   );
 }

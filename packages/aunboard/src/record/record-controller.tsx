@@ -124,7 +124,7 @@ export function RecordController({ tour, currentRoute }: RecordControllerProps) 
   const cancel = () => { setPending(null); setReveal([]); };
 
   return (
-    <div data-lm-ui>
+    <div data-aun-ui>
       {/* Crosshair cursor + a thin outline could be layered here while `armed`. */}
       {pending && (
         <OverlayCard

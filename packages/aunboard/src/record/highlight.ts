@@ -7,15 +7,15 @@ const MEANINGFUL_ROLES = new Set([
   "table", "grid", "list", "listitem", "navigation", "form", "dialog", "heading", "img",
 ]);
 
-/** True if `el` (or an ancestor) is inside label-mode's own UI. */
+/** True if `el` (or an ancestor) is inside aunboard's own UI. */
 function inOwnUi(el: Element): boolean {
-  return el.closest("[data-lm-ui]") !== null;
+  return el.closest("[data-aun-ui]") !== null;
 }
 
 function isMeaningful(el: Element): boolean {
   const tag = el.tagName.toLowerCase();
   if (INTERACTIVE.has(tag)) return true;
-  if (el.hasAttribute("data-explain") || el.hasAttribute("data-testid")) return true;
+  if (el.hasAttribute("data-aun") || el.hasAttribute("data-explain") || el.hasAttribute("data-testid")) return true;
   // implicitRole reads + normalizes the role attribute (multi-token → first token),
   // so call it directly rather than re-reading getAttribute("role") here.
   const role = implicitRole(el);
@@ -24,7 +24,7 @@ function isMeaningful(el: Element): boolean {
 
 /**
  * Climb from `start` to the nearest semantically meaningful element.
- * Returns null for body, empty space, or label-mode's own UI.
+ * Returns null for body, empty space, or aunboard's own UI.
  */
 export function meaningfulTarget(start: Element | null): Element | null {
   if (!start || start === document.body || start === document.documentElement) return null;

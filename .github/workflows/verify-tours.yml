@@ -1,0 +1,40 @@
+name: verify-tours
+
+# Replays every committed tour against a real build of the app and fails the PR when a step
+# can no longer find its element. This is the mechanism behind aunboard's durability promise:
+# a tour that breaks is caught here, at review time, instead of in front of a user.
+#
+# Host apps copy this file. Set BASE_URL to wherever the built app is served.
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Serve the built app
+        run: |
+          npx --yes http-server ./examples/demo/dist -p 4173 --silent &
+          npx --yes wait-on http://127.0.0.1:4173 --timeout 60000
+
+      # NOTE: the tours glob must point at where the tours actually live. The CLI's default
+      # (./tours/*.tour.json) is relative to the working directory.
+      - name: Replay committed tours
+        run: >
+          node packages/cli/dist/cli.js verify
+          --url http://127.0.0.1:4173
+          --tours "examples/demo/tours/*.tour.json"
+          --reporter github

@@ -29,10 +29,10 @@ it("skips steps whose element is not on the page (no crash)", () => {
 
 it("renders nothing when tour is null", () => {
   render(<Overlay tour={null} />);
-  expect(document.querySelector("[data-label-mode-overlay]")).toBeNull();
+  expect(document.querySelector("[data-aunboard-overlay]")).toBeNull();
 });
 
 it("renders nothing when tour has no steps", () => {
   render(<Overlay tour={{ id: "empty", name: "Empty", steps: [] }} />);
-  expect(document.querySelector("[data-label-mode-overlay]")).toBeNull();
+  expect(document.querySelector("[data-aunboard-overlay]")).toBeNull();
 });

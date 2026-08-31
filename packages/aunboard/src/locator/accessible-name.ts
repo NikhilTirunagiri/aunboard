@@ -1,4 +1,3 @@
-// packages/label-mode/src/locator/accessible-name.ts
 import { cssEscape } from "./css-path";
 
 const IMPLICIT_ROLES: Record<string, string> = {

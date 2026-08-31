@@ -1,7 +1,7 @@
-import type { LabelMode } from "./context";
+import type { AunboardMode } from "./context";
 
 /** Pure cycle: off -> explore -> walkthrough -> off (walkthrough skipped without tours). */
-export function nextMode(current: LabelMode, hasTours: boolean): LabelMode {
+export function nextMode(current: AunboardMode, hasTours: boolean): AunboardMode {
   if (current === "off") return "explore";
   if (current === "explore") return hasTours ? "walkthrough" : "off";
   return "off";
@@ -12,7 +12,7 @@ export function nextMode(current: LabelMode, hasTours: boolean): LabelMode {
  * Walkthrough when `hasTours()` is false. Returns an uninstall function.
  */
 export function installModeShortcut(
-  setMode: (updater: (prev: LabelMode) => LabelMode) => void,
+  setMode: (updater: (prev: AunboardMode) => AunboardMode) => void,
   hasTours: () => boolean,
 ): () => void {
   const handler = (e: KeyboardEvent) => {

@@ -1,5 +1,13 @@
 # Authoring tour-friendly UI for `aunboard`
 
+> **Shortcut:** installing [`@aunboard/vite`](production.md#3-get-to-tier-1-with-the-build-plugin)
+> stamps build-time ids onto the elements your tours reference, which makes steps durable
+> regardless of the guidance below. The rules here still matter — they make your app better for
+> screen-reader users, and they keep tours working for anyone who hasn't added the plugin — but
+> they stop being the only thing standing between you and a broken tour.
+
+
+
 A reference for writing (or generating) host-app components so that aunboard tours and
 Explore badges keep resolving as the app changes. **Hand this file to Claude/Cursor when
 you build UI**, or paste the rules block at the bottom into your host repo's `CLAUDE.md`.

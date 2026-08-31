@@ -1,0 +1,66 @@
+{
+  "name": "@aunboard/vite",
+  "version": "0.2.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "description": "Vite plugin that stamps stable data-aun ids onto exactly the JSX elements your committed aunboard tours reference, so tours survive UI refactors.",
+  "keywords": [
+    "aunboard",
+    "vite",
+    "vite-plugin",
+    "product-tour",
+    "onboarding",
+    "jsx",
+    "data-attribute"
+  ],
+  "author": "Nikhil Tirunagiri",
+  "homepage": "https://github.com/NikhilTirunagiri/aunboard#readme",
+  "bugs": "https://github.com/NikhilTirunagiri/aunboard/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilTirunagiri/aunboard.git",
+    "directory": "packages/vite"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+      "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepack": "tsup",
+    "pack:tgz": "tsup && npm pack"
+  },
+  "peerDependencies": {
+    "vite": ">=4"
+  },
+  "dependencies": {
+    "@aunboard/plugin-core": "workspace:*",
+    "tinyglobby": "^0.2.10"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vite": "^6.0.0",
+    "vitest": "^2.1.0"
+  }
+}

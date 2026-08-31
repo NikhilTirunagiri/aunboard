@@ -1,4 +1,3 @@
-// packages/label-mode/src/locator/integration.test.ts
 import { describe, it, expect } from "vitest";
 import { buildLocator } from "./build";
 import { resolveLocator } from "./resolve";

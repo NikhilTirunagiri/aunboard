@@ -1,0 +1,60 @@
+{
+  "name": "@aunboard/cli",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "description": "CI guard for aunboard tours: replays every tour step's DOM locator in headless Chromium and fails the build when a step can no longer be found.",
+  "keywords": [
+    "aunboard",
+    "cli",
+    "product-tour",
+    "onboarding",
+    "ci",
+    "playwright",
+    "locator"
+  ],
+  "author": "Nikhil Tirunagiri",
+  "homepage": "https://github.com/NikhilTirunagiri/aunboard#readme",
+  "bugs": "https://github.com/NikhilTirunagiri/aunboard/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilTirunagiri/aunboard.git",
+    "directory": "packages/cli"
+  },
+  "type": "module",
+  "bin": {
+    "aunboard": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepack": "pnpm build",
+    "pack:tgz": "pnpm build && npm pack"
+  },
+  "peerDependencies": {
+    "playwright": ">=1.40"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
