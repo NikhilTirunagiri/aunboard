@@ -1,0 +1,93 @@
+{
+  "name": "@aunboard/next",
+  "version": "0.2.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "description": "Next.js config wrapper that stamps stable data-aun ids onto exactly the JSX elements your committed aunboard tours reference, so tours survive UI refactors.",
+  "keywords": [
+    "aunboard",
+    "next",
+    "nextjs",
+    "webpack-loader",
+    "product-tour",
+    "onboarding",
+    "jsx",
+    "data-attribute"
+  ],
+  "author": "Nikhil Tirunagiri",
+  "homepage": "https://github.com/NikhilTirunagiri/aunboard#readme",
+  "bugs": "https://github.com/NikhilTirunagiri/aunboard/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilTirunagiri/aunboard.git",
+    "directory": "packages/next"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./loader": {
+      "import": {
+        "types": "./dist/loader.d.ts",
+        "default": "./dist/loader.js"
+      },
+      "require": {
+        "types": "./dist/loader.d.cts",
+        "default": "./dist/loader.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepack": "tsup",
+    "pack:tgz": "tsup && npm pack"
+  },
+  "peerDependencies": {
+    "next": ">=13",
+    "webpack": ">=5"
+  },
+  "peerDependenciesMeta": {
+    "webpack": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@aunboard/plugin-core": "workspace:*",
+    "picomatch": "^4.0.2",
+    "tinyglobby": "^0.2.10"
+  },
+  "devDependencies": {
+    "@jridgewell/trace-mapping": "^0.3.31",
+    "@types/node": "^25.9.2",
+    "@types/picomatch": "^4.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "webpack": "^5.110.2"
+  }
+}

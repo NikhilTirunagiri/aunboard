@@ -17,6 +17,7 @@ Node >= 18, pnpm (the version is pinned via `packageManager`).
 | `packages/aunboard` | The runtime + studio (recorder). Ships to npm as `aunboard`. |
 | `packages/plugin-core` | Bundler-agnostic JSX transform + the `aunboard.ids.json` map. |
 | `packages/vite` | Vite adapter over `plugin-core`. |
+| `packages/next` | Next.js adapter over `plugin-core` (webpack loader). |
 | `packages/cli` | `aunboard verify` — headless tour replay for CI. |
 | `examples/demo` | Runnable example app + a committed, CI-verified tour. |
 

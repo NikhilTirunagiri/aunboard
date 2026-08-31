@@ -148,13 +148,24 @@ line in your build config.
 ### Tier 1: stamp stable IDs at build time
 
 ```ts
-// vite.config.ts
+// vite.config.ts — Vite
 import { aunboard } from "@aunboard/vite";
 
 export default defineConfig({
   plugins: [react(), aunboard()],
 });
 ```
+
+```js
+// next.config.mjs — Next.js (App or Pages router)
+import { withAunboard } from "@aunboard/next";
+
+export default withAunboard({ /* your next config */ });
+```
+
+> **Turbopack** (`next dev --turbo`) doesn't run webpack loaders, so stamping is skipped there
+> with a warning — tours fall back to semantic locators and still work. Production builds are
+> unaffected.
 
 The plugin reads your **committed tours** and stamps `data-aun` onto only the elements those
 tours actually reference — so a production build carries a handful of extra attributes, not

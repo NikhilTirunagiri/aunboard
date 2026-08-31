@@ -17,9 +17,10 @@ version-control, and verify in CI.
   durability warning and lets CI rank the weakest steps in a tour.
 - **`@aunboard/cli`** — `aunboard verify` replays committed tours headlessly and fails CI when a
   step can no longer find its element.
-- **`@aunboard/vite` / `@aunboard/plugin-core`** — build-time ID stamping and the
-  `aunboard.ids.json` map, which re-matches IDs across file moves, component renames and
-  reordering.
+- **`@aunboard/vite` / `@aunboard/next` / `@aunboard/plugin-core`** — build-time ID stamping and
+  the `aunboard.ids.json` map, which re-matches IDs across file moves, component renames and
+  reordering. The Next adapter is a `withAunboard()` config wrapper backed by a webpack loader;
+  Turbopack is detected and warns rather than failing.
 - **`examples/demo`** — a runnable three-route example app with a committed, CI-verified tour.
 - **`ci.yml`** — typecheck, test and build now run on every push and PR, not only on release tags.
 - `./studio` export alias for the recorder (`./record` still works).
