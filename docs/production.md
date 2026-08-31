@@ -30,10 +30,15 @@ the committed tour to win, always. aunboard enforces this (the merge is gated on
 
 ## 2. What ships, and what doesn't
 
-| Import | Ships to users | Size | Purpose |
+| Import | Ships to users | Size (gzip) | Purpose |
 |---|---|---|---|
-| `aunboard` | yes | small, zero runtime deps | Explore + Walkthrough replay |
-| `aunboard/studio` | **no** | — | the recorder; dynamically imported, and only in `record` mode in a non-production build |
+| `aunboard` | yes | **7.6 kB** entry + 4.0 kB shared chunk, zero runtime deps | Explore + Walkthrough replay |
+| `aunboard/studio` | no — lazy chunk, never fetched in production | 5.0 kB | the recorder |
+
+Measured from the published tarball. The recorder's code (`OverlayCard`, `StepList`, the
+session reducer) does not appear in the main entry at all — the provider reaches it through a
+dynamic `import("./record/index.js")`, so your bundler emits it as a separate chunk that a
+production build never requests.
 
 The recorder is never in your production bundle. The provider imports it lazily and only when
 record mode is entered outside production, so bundlers drop it from the production graph.
