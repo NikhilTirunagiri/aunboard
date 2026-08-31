@@ -40,6 +40,17 @@ jobs:
       - run: pnpm -r typecheck
       - run: pnpm -r test
 
+      # Fail loudly and legibly if the token is wrong, rather than surfacing as a bare 403
+      # on the first publish. Prints WHICH npm account the token maps to and whether that
+      # account can see the aunboard org.
+      - name: Check npm credentials
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "authenticated as: $(npm whoami || echo '<whoami failed — token invalid or read-only>')"
+          echo "orgs visible to this token:"
+          npm org ls aunboard 2>&1 | head -20 || echo "<cannot read the aunboard org with this token>"
+
       # Dependency order: plugin-core is depended on by the bundler adapters.
       - name: Publish to npm
         env:
