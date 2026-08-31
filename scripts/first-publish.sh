@@ -29,11 +29,17 @@ echo "Packages, in dependency order: ${PACKAGES[*]}"
 # An OTP is NOT collected up front. npm one-time passwords expire in about 30 seconds, which
 # five sequential publishes can easily outrun — and depending on your 2FA mode, publishing may
 # not require one at all. pnpm prompts if and when npm actually demands it.
-OTP_ARGS=()
-if [ -n "${OTP:-}" ]; then
-  OTP_ARGS=(--otp "$OTP")
-  echo "Using the OTP supplied via \$OTP."
-fi
+[ -n "${OTP:-}" ] && echo "Using the OTP supplied via \$OTP."
+
+# Deliberately not an array. macOS ships bash 3.2, where expanding an EMPTY array under
+# `set -u` aborts with "unbound variable" — so the no-OTP path (the common one) would die.
+publish_pkg() {
+  if [ -n "${OTP:-}" ]; then
+    pnpm --filter "./$1" publish --access public --no-git-checks --otp "$OTP"
+  else
+    pnpm --filter "./$1" publish --access public --no-git-checks
+  fi
+}
 
 echo
 echo "Building everything first — a failed build halfway through a publish is a bad time."
@@ -51,7 +57,7 @@ for pkg in "${PACKAGES[@]}"; do
   echo "──── $name@$version ────"
   # No --provenance: attestations require a CI OIDC identity and cannot be produced from a
   # laptop. Releases after this one publish from CI and are attested.
-  if pnpm --filter "./$dir" publish --access public --no-git-checks "${OTP_ARGS[@]}"; then
+  if publish_pkg "$dir"; then
     echo "✓ $name@$version"
     published+=("$name")
   else
