@@ -3,6 +3,14 @@ name: release
 # Cut a release by pushing a v* tag (see RELEASING.md). Builds + tests, then publishes every
 # public package to npm with provenance and attaches the tarballs to a GitHub Release.
 #
+# AUTHENTICATION: trusted publishing (OIDC). There is no npm token. GitHub mints a short-lived
+# identity for this workflow and npm trusts it because each package names this repo + workflow
+# as a trusted publisher. Nothing long-lived exists to leak, and no 2FA prompt blocks CI.
+#
+# This requires each package to ALREADY EXIST on npm — npm will not let you configure a trusted
+# publisher for a package it has never seen. The first publish was therefore done by hand; see
+# scripts/first-publish.sh. A brand-new package added later needs that same bootstrap.
+#
 # IMPORTANT: publishing uses `pnpm publish`, not `npm publish`. @aunboard/vite and
 # @aunboard/next depend on @aunboard/plugin-core via `workspace:*`; pnpm rewrites that to a real
 # version range at pack time, npm does not — publishing with npm would ship a manifest no
@@ -24,7 +32,8 @@ jobs:
 
       - uses: pnpm/action-setup@v4 # uses the packageManager pin from package.json
 
-      - uses: actions/setup-node@v4
+      # v6+ is required for trusted publishing support.
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
@@ -40,21 +49,12 @@ jobs:
       - run: pnpm -r typecheck
       - run: pnpm -r test
 
-      # Fail loudly and legibly if the token is wrong, rather than surfacing as a bare 403
-      # on the first publish. Prints WHICH npm account the token maps to and whether that
-      # account can see the aunboard org.
-      - name: Check npm credentials
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          echo "authenticated as: $(npm whoami || echo '<whoami failed — token invalid or read-only>')"
-          echo "orgs visible to this token:"
-          npm org ls aunboard 2>&1 | head -20 || echo "<cannot read the aunboard org with this token>"
-
       # Dependency order: plugin-core is depended on by the bundler adapters.
+      # No NODE_AUTH_TOKEN — pnpm exchanges the workflow's OIDC identity for a short-lived
+      # npm credential. If this 404s on a package, that package has no trusted publisher
+      # configured on npm yet.
       - name: Publish to npm
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
         run: |
           set -euo pipefail

@@ -18,11 +18,40 @@ They share one version number — bump them together.
 > time and npm does not, so an npm publish would ship a manifest nobody can install. The
 > workflow also publishes in dependency order for the same reason.
 
-## One-time setup
+## How authentication works — there is no token
 
-- An npm account that can publish `aunboard`.
-- An npm **automation token** (npmjs.com → *Access Tokens* → Generate → *Automation*), stored as the
-  GitHub repo secret **`NPM_TOKEN`** (Settings → Secrets and variables → Actions).
+Releases publish via **trusted publishing (OIDC)**. GitHub mints a short-lived identity for the
+release workflow, and npm accepts it because each package names this repository and workflow as
+a trusted publisher. Nothing long-lived exists to leak, and no 2FA prompt can block CI.
+
+This replaced a long-lived automation token deliberately. npm is
+[removing direct publishing from 2FA-bypass tokens around January 2027](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/),
+so a token-based release pipeline has an expiry date.
+
+### One-time setup, per package
+
+On npmjs.com, for each package → *Settings* → *Trusted Publisher*:
+
+| Field | Value |
+|---|---|
+| Organization or user | `NikhilTirunagiri` |
+| Repository | `aunboard` |
+| Workflow filename | `release.yml` |
+
+### Publishing a package for the very first time
+
+npm will not let you configure a trusted publisher for a package it has never seen, so a
+brand-new package cannot be published by CI. Bootstrap it by hand, once:
+
+```bash
+npm login                      # interactive, with your authenticator
+./scripts/first-publish.sh     # publishes in dependency order, prompts for one OTP
+```
+
+Then add the trusted publisher as above, and every later release is tokenless.
+
+> A hand publish cannot attach a provenance attestation — those require a CI OIDC identity.
+> Releases published by the workflow are attested.
 
 ## Cut a release
 
