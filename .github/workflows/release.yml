@@ -32,9 +32,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Build FIRST. Packages consume each other's built output (the example app imports
+      # @aunboard/vite in its config), so typechecking a fresh checkout before building
+      # fails on missing dist. Build errors surface here too — tsup emits types, so a type
+      # error fails the build step.
+      - run: pnpm -r build
       - run: pnpm -r typecheck
       - run: pnpm -r test
-      - run: pnpm -r build
 
       # Dependency order: plugin-core is depended on by the bundler adapters.
       - name: Publish to npm
