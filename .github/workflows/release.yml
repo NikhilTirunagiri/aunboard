@@ -28,9 +28,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4 # uses the packageManager pin from package.json
+      - uses: pnpm/action-setup@v6 # uses the packageManager pin from package.json
 
       # v6+ is required for trusted publishing support.
       - uses: actions/setup-node@v6
