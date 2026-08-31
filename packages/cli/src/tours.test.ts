@@ -46,11 +46,11 @@ describe("parseTourFile", () => {
   });
 
   it("rejects the wrong artifact version", () => {
-    expect(() => parseTourFile(envelope(validTour, 2))).toThrow(/unsupported artifact version 2/);
+    expect(() => parseTourFile(envelope(validTour, 2))).toThrow(/version 2 is newer than this build supports/);
   });
 
   it("rejects a missing envelope version", () => {
-    expect(() => parseTourFile(JSON.stringify({ tour: validTour }))).toThrow(/unsupported artifact version/);
+    expect(() => parseTourFile(JSON.stringify({ tour: validTour }))).toThrow(/invalid "version"/);
   });
 
   it("rejects a tour missing id/name/steps", () => {
@@ -115,6 +115,6 @@ describe("loadTourFiles", () => {
     expect(result.tours[0]!.tour.id).toBe("new-engineer");
     expect(result.errors).toHaveLength(1);
     expect(result.errors[0]!.file).toBe("bad.tour.json");
-    expect(result.errors[0]!.error).toMatch(/unsupported artifact version 99/);
+    expect(result.errors[0]!.error).toMatch(/version 99 is newer than this build supports/);
   });
 });

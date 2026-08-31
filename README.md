@@ -133,9 +133,15 @@ wrong element.
 |---|---|---|---|
 | 1 | `data-aun` — build-stamped from your committed tours | ~100% | copy edits, restyling, reordering, data changes |
 | 2 | An existing hook (`data-explain`, `data-testid`, stable `id`) | ~100% | everything except deleting the attribute |
-| 3 | ARIA role + accessible name | ~95% | restyling, reordering, data changes |
+| 3 | ARIA role + accessible name | ~95% | restyling, reordering, data changes, **tag changes**, **shadow DOM** |
 | 4 | Visible text, scoped ancestor, positional index | 60–80% | little — reported as not-found when it drifts |
 | 5 | **Nothing matched → the step reports not-found** | — | — |
+
+Tiers 1–3 also survive two things that break most tour tools: an element **changing tag**
+(`<button>` → `<a role="button">` — the tag was only ever a fast prefilter, a named role is the
+real identity) and living inside an **open shadow root** (Lit, Shoelace, Ionic). Both are
+searched only after the direct match misses, so the common path stays fast. Neither widening
+loosens the match itself — a named role must still match exactly, and ambiguity still fails.
 
 Tier 5 is a feature. A missing step is a recoverable event a viewer understands; a confidently
 **wrong** highlight is a lie that discredits every other step in the tour. aunboard captures a

@@ -82,3 +82,26 @@ describe("artifact", () => {
     expect(() => parseTour(badScope)).toThrow(/tag/i);
   });
 });
+
+describe("artifact versioning", () => {
+  const tour = { id: "t", name: "T", steps: [] };
+
+  it("rejects a newer artifact with an actionable message rather than guessing", () => {
+    // Silently ignoring unknown fields would replay a tour we only partly understand.
+    const json = JSON.stringify({ version: 99, tour });
+    expect(() => parseTour(json)).toThrow(/newer than this build supports/);
+    expect(() => parseTour(json)).toThrow(/Upgrade the aunboard package/);
+  });
+
+  it("rejects a missing or nonsense version", () => {
+    expect(() => parseTour(JSON.stringify({ tour }))).toThrow(/invalid "version"/);
+    expect(() => parseTour(JSON.stringify({ version: "1", tour }))).toThrow(/invalid "version"/);
+    expect(() => parseTour(JSON.stringify({ version: 0, tour }))).toThrow(/invalid "version"/);
+    expect(() => parseTour(JSON.stringify({ version: 1.5, tour }))).toThrow(/invalid "version"/);
+  });
+
+  it("still accepts the current version unchanged", () => {
+    const parsed = parseTour(JSON.stringify({ version: 1, tour }));
+    expect(parsed.id).toBe("t");
+  });
+});

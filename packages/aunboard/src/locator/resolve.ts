@@ -20,15 +20,66 @@ export function matchElements(
     scopeRoot = scoped.element;
   }
 
-  if (locator.hook) {
-    const sel = `[${locator.hook.attr}="${cssEscape(locator.hook.value)}"]`;
-    return Array.from(scopeRoot.querySelectorAll(sel)) as HTMLElement[];
+  const selector = locator.hook
+    ? `[${cssEscape(locator.hook.attr)}="${cssEscape(locator.hook.value)}"]`
+    : locator.tag;
+
+  // Fast path: the element is still the tag we recorded, in the light DOM.
+  let matched = applySignals(query(scopeRoot, selector), locator);
+  if (matched.length) return matched;
+
+  // Widening 1 — the tag changed. `<button>` becomes `<a role="button">`, a `<div>` gains
+  // `role="tab"`. The tag was only ever a cheap prefilter; a role WITH an accessible name is
+  // the actual identity, and it is specific enough to search on alone. We deliberately do not
+  // widen for a bare role or for text — those match far too broadly (a text-only locator would
+  // match every ancestor containing that text), and a wrong element is worse than none.
+  const canWiden = !locator.hook && locator.role?.name !== undefined;
+  if (canWiden) {
+    matched = applySignals(query(scopeRoot, "*"), locator);
+    if (matched.length) return matched;
   }
 
-  let candidates = Array.from(scopeRoot.querySelectorAll(locator.tag)) as HTMLElement[];
+  // Widening 2 — the element lives inside a shadow root. querySelectorAll does not pierce
+  // shadow boundaries, so a component library (Lit, Shoelace, Ionic) is invisible to the
+  // paths above. Only walked as a last resort: it is the expensive branch.
+  const deep = queryShadow(scopeRoot, canWiden ? "*" : selector);
+  if (deep.length) matched = applySignals(deep, locator);
+  return matched;
+}
+
+/** querySelectorAll, tolerating a malformed selector rather than throwing mid-resolve. */
+function query(root: ParentNode, selector: string): HTMLElement[] {
+  try {
+    return Array.from(root.querySelectorAll(selector)) as HTMLElement[];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Matches within *open* shadow roots, depth-first. Closed roots are unreachable by design —
+ * nothing can see into them, so a step on such an element correctly reports not-found.
+ */
+function queryShadow(root: ParentNode, selector: string): HTMLElement[] {
+  const out: HTMLElement[] = [];
+  const visit = (node: ParentNode) => {
+    for (const el of query(node, "*")) {
+      const shadow = el.shadowRoot;
+      if (!shadow) continue;
+      out.push(...query(shadow, selector));
+      visit(shadow);
+    }
+  };
+  visit(root);
+  return out;
+}
+
+/** Narrow candidates by the locator's role and text signals. */
+function applySignals(candidates: HTMLElement[], locator: ElementLocator): HTMLElement[] {
+  let out = candidates;
 
   if (locator.role) {
-    candidates = candidates.filter(
+    out = out.filter(
       (c) =>
         implicitRole(c) === locator.role!.role &&
         (locator.role!.name === undefined || accessibleName(c) === locator.role!.name),
@@ -36,11 +87,11 @@ export function matchElements(
   }
 
   if (locator.text !== undefined) {
-    const byText = candidates.filter((c) => normalizeText(c) === locator.text);
-    if (byText.length >= 1) candidates = byText; // only narrow if text doesn't zero everything out
+    const byText = out.filter((c) => normalizeText(c) === locator.text);
+    if (byText.length >= 1) out = byText; // only narrow if text doesn't zero everything out
   }
 
-  return candidates;
+  return out;
 }
 
 /** Resolve a locator to a single live element, with confidence metadata. */

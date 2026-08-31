@@ -34,6 +34,18 @@ version-control, and verify in CI.
   key is still read (never written) so a recording in flight is not lost.
 
 ### Fixed
+- **Locators are no longer coupled to the recorded tag.** A step recorded on a `<button>` that
+  becomes an `<a role="button">` (or a styled `<div>`) now still resolves: the tag is a fast
+  prefilter, and a role *with an accessible name* is the real identity. Widening is deliberately
+  refused for a bare role or for text-only locators, which match far too broadly.
+- **Elements inside open shadow roots resolve.** `querySelectorAll` does not cross shadow
+  boundaries, so any web-component library (Lit, Shoelace, Ionic) was previously invisible.
+  Walked only as a last resort. Closed roots remain unreachable and correctly report not-found.
+- **Tour artifacts have a version migration path.** `parseTour` previously threw on any version
+  but 1, so a future format change would have broken every committed tour. Older artifacts now
+  migrate forward; a *newer* artifact is refused with an actionable message rather than being
+  partially understood.
+- A malformed locator selector returns no matches instead of throwing mid-resolve.
 - **localStorage recordings no longer override committed tours outside an authoring session.**
   Previously a recording in a visitor's own browser silently replaced the committed tour in any
   build with the overlay enabled — including the staging/demo builds the docs recommend. The

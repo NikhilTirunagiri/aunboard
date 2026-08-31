@@ -93,7 +93,7 @@ describe("runCli", () => {
     const code = await runCli(["verify", "--url", "http://localhost:3000"], h.deps);
 
     expect(code).toBe(1);
-    expect(h.out.join("\n")).toContain("unsupported artifact version 2");
+    expect(h.out.join("\n")).toContain("version 2 is newer than this build supports");
   });
 
   it("exits 1 without launching a browser when no tour files match", async () => {
