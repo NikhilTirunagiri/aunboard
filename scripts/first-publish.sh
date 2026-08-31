@@ -9,7 +9,7 @@
 #
 # USAGE
 #   npm login                       # once, interactive
-#   ./scripts/first-publish.sh      # pnpm prompts for a one-time password only if npm asks
+#   ./scripts/first-publish.sh      # prompts for a fresh OTP before each package
 #
 #   OTP=123456 ./scripts/first-publish.sh    # or supply one up front
 #
@@ -26,25 +26,54 @@ who=$(npm whoami 2>/dev/null) || {
 echo "Publishing as: $who"
 echo "Packages, in dependency order: ${PACKAGES[*]}"
 
-# An OTP is NOT collected up front. npm one-time passwords expire in about 30 seconds, which
-# five sequential publishes can easily outrun — and depending on your 2FA mode, publishing may
-# not require one at all. pnpm prompts if and when npm actually demands it.
-[ -n "${OTP:-}" ] && echo "Using the OTP supplied via \$OTP."
-
-# Deliberately not an array. macOS ships bash 3.2, where expanding an EMPTY array under
-# `set -u` aborts with "unbound variable" — so the no-OTP path (the common one) would die.
-publish_pkg() {
-  if [ -n "${OTP:-}" ]; then
-    pnpm --filter "./$1" publish --access public --no-git-checks --otp "$OTP"
-  else
-    pnpm --filter "./$1" publish --access public --no-git-checks
+# npm rejects a publish from a 2FA account with a plain 403 rather than the EOTP challenge
+# code that makes pnpm prompt for a one-time password — so pnpm never asks, and the publish
+# just fails. The OTP has to be passed explicitly with --otp.
+#
+# It is read fresh before EACH package: npm one-time passwords expire in roughly 30 seconds,
+# and five sequential publishes (each preceded by a build) comfortably outrun a single code.
+# Set $OTP to reuse one code for everything instead, for non-interactive runs.
+#
+# Read from /dev/tty, not stdin: stdin may be redirected or already consumed, and a `read`
+# that silently returns empty looks exactly like a user who typed nothing.
+# Sets OTP_CODE. Deliberately NOT a command substitution: `exit` inside $(...) only leaves
+# the subshell, so a failure to reach the terminal would be swallowed and the publish would
+# proceed with an empty --otp.
+OTP_CODE=""
+require_tty() {
+  if ! { : > /dev/tty; } 2>/dev/null; then
+    echo "Cannot reach a terminal to ask for the OTP." >&2
+    echo "Run this script directly in a terminal, or pass one: OTP=123456 $0" >&2
+    exit 1
   fi
 }
+prompt_otp() {
+  require_tty
+  OTP_CODE=""
+  while [ -z "$OTP_CODE" ]; do
+    printf '  6-digit code from your authenticator (npm needs a fresh one): ' > /dev/tty
+    if ! read -r OTP_CODE < /dev/tty; then
+      echo >&2
+      echo "Could not read the OTP (end of input)." >&2
+      exit 1
+    fi
+  done
+}
 
-echo
-echo "Building everything first — a failed build halfway through a publish is a bad time."
-pnpm -r build >/dev/null
-echo "Build OK."
+# Deliberately not an array. macOS ships bash 3.2, where expanding an EMPTY array under
+# `set -u` aborts with "unbound variable".
+publish_pkg() {
+  if [ -n "${OTP:-}" ]; then
+    OTP_CODE="$OTP"
+  else
+    prompt_otp
+  fi
+  if [ -z "$OTP_CODE" ]; then
+    echo "Refusing to publish with an empty one-time password." >&2
+    exit 1
+  fi
+  pnpm --filter "./$1" publish --access public --no-git-checks --otp "$OTP_CODE"
+}
 
 published=()
 for pkg in "${PACKAGES[@]}"; do
