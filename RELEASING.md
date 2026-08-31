@@ -28,15 +28,27 @@ This replaced a long-lived automation token deliberately. npm is
 [removing direct publishing from 2FA-bypass tokens around January 2027](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/),
 so a token-based release pipeline has an expiry date.
 
-### One-time setup, per package
+### One-time setup
 
-On npmjs.com, for each package → *Settings* → *Trusted Publisher*:
+```bash
+./scripts/trust-publishers.sh
+```
+
+Registers this repo's `release.yml` as a trusted publisher for all five packages via
+`npm trust`. Run it in a real terminal — npm requires 2FA and opens a browser for your
+security key.
+
+Or, in the web UI, per package at `https://www.npmjs.com/package/<name>/access` — the
+Settings tab lives on that page, not on the package's main page:
 
 | Field | Value |
 |---|---|
 | Organization or user | `NikhilTirunagiri` |
 | Repository | `aunboard` |
 | Workflow filename | `release.yml` |
+| Allowed actions | `npm publish` |
+
+Check it with `npm trust list <package>`.
 
 ### Publishing a package for the very first time
 
