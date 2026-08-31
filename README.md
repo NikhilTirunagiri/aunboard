@@ -1,5 +1,11 @@
 # `aunboard`
 
+[![npm](https://img.shields.io/npm/v/aunboard?color=cb3837&logo=npm)](https://www.npmjs.com/package/aunboard)
+[![ci](https://github.com/NikhilTirunagiri/aunboard/actions/workflows/ci.yml/badge.svg)](https://github.com/NikhilTirunagiri/aunboard/actions/workflows/ci.yml)
+[![provenance](https://img.shields.io/badge/provenance-attested-2ea44f?logo=github)](https://www.npmjs.com/package/aunboard#provenance)
+[![license](https://img.shields.io/npm/l/aunboard?color=blue)](LICENSE)
+[![bundle](https://img.shields.io/badge/runtime-7.6%20kB%20gzip-blue)](docs/production.md#2-what-ships-and-what-doesnt)
+
 A React overlay that turns any app into a self-documenting one — in dev, in staging, and in production. It adds two modes:
 
 - **Explore** — every recorded element gets a floating badge with a label + description.
@@ -9,12 +15,25 @@ You author both by **clicking elements in your running app**. Each click capture
 
 Unlike hosted tour tools, your demos live in version control next to the code they describe. When a PR changes the UI, the PR that broke the tour is the PR that fails.
 
+## Packages
+
+| Package | Version | What it does |
+|---|---|---|
+| [`aunboard`](https://www.npmjs.com/package/aunboard) | [![npm](https://img.shields.io/npm/v/aunboard?label=)](https://www.npmjs.com/package/aunboard) | The runtime + the click-to-record studio |
+| [`@aunboard/vite`](https://www.npmjs.com/package/@aunboard/vite) | [![npm](https://img.shields.io/npm/v/@aunboard/vite?label=)](https://www.npmjs.com/package/@aunboard/vite) | Stamps durable ids at build time (Vite) |
+| [`@aunboard/next`](https://www.npmjs.com/package/@aunboard/next) | [![npm](https://img.shields.io/npm/v/@aunboard/next?label=)](https://www.npmjs.com/package/@aunboard/next) | Same, for Next.js (App + Pages router) |
+| [`@aunboard/cli`](https://www.npmjs.com/package/@aunboard/cli) | [![npm](https://img.shields.io/npm/v/@aunboard/cli?label=)](https://www.npmjs.com/package/@aunboard/cli) | `aunboard verify` — replays tours in CI |
+| [`@aunboard/plugin-core`](https://www.npmjs.com/package/@aunboard/plugin-core) | [![npm](https://img.shields.io/npm/v/@aunboard/plugin-core?label=)](https://www.npmjs.com/package/@aunboard/plugin-core) | Shared transform + id map (used by the adapters) |
+
+Every package is published from CI with a [SLSA provenance attestation](https://slsa.dev/provenance/v1).
+
 ---
 
 ## Guides
 
 - **[Integration prompt](docs/integration-prompt.md)** — paste-into-your-agent prompt to integrate aunboard into any app, hands-free.
 - **[Integration guide](docs/integration.md)** — full host-app setup: install, mount, navigation, record, commit, staging.
+- **[Example app](examples/demo)** — a runnable three-route app with a committed, CI-verified tour.
 - **[Running in production](docs/production.md)** — shipping the overlay to real users: enabling it, the build plugin, CI verification, failure behaviour.
 - **[Authoring tour-friendly UI](docs/authoring-tour-friendly-ui.md)** — write components so tours stay durable (and a drop-in rules block for your repo's `CLAUDE.md`).
 
