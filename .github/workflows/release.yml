@@ -1,8 +1,12 @@
 name: release
 
-# Cut a release by pushing a v* tag (see RELEASING.md). Builds + tests, publishes
-# aunboard to the public npm registry (with provenance), and attaches the tarball to
-# a GitHub Release. Requires an NPM_TOKEN repo secret (an npm automation token).
+# Cut a release by pushing a v* tag (see RELEASING.md). Builds + tests, then publishes every
+# public package to npm with provenance and attaches the tarballs to a GitHub Release.
+#
+# IMPORTANT: publishing uses `pnpm publish`, not `npm publish`. @aunboard/vite and
+# @aunboard/next depend on @aunboard/plugin-core via `workspace:*`; pnpm rewrites that to a real
+# version range at pack time, npm does not — publishing with npm would ship a manifest no
+# consumer can install. Packages are published in dependency order for the same reason.
 on:
   push:
     tags:
@@ -32,19 +36,35 @@ jobs:
       - run: pnpm -r test
       - run: pnpm -r build
 
+      # Dependency order: plugin-core is depended on by the bundler adapters.
       - name: Publish to npm
-        working-directory: packages/aunboard
-        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
+        run: |
+          set -euo pipefail
+          for pkg in aunboard plugin-core cli vite next; do
+            dir="packages/$pkg"
+            [ -f "$dir/package.json" ] || { echo "skip $pkg (not present)"; continue; }
+            echo "::group::publish $pkg"
+            pnpm --filter "./$dir" publish --access public --no-git-checks
+            echo "::endgroup::"
+          done
 
-      - name: Pack tarball (release artifact)
-        working-directory: packages/aunboard
-        run: npm pack
+      - name: Pack tarballs (release artifacts)
+        run: |
+          set -euo pipefail
+          mkdir -p dist-tarballs
+          for pkg in aunboard plugin-core cli vite next; do
+            dir="packages/$pkg"
+            [ -f "$dir/package.json" ] || continue
+            (cd "$dir" && pnpm pack --pack-destination "$GITHUB_WORKSPACE/dist-tarballs")
+          done
+          ls -la dist-tarballs
 
-      - name: Attach tarball to GitHub Release
+      - name: Attach tarballs to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: packages/aunboard/*.tgz
+          files: dist-tarballs/*.tgz
           generate_release_notes: true
           fail_on_unmatched_files: true

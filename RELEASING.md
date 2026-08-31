@@ -1,7 +1,22 @@
-# Releasing `aunboard`
+# Releasing aunboard
 
-Published to the public **npm** registry on every `v*` tag, with the tarball also attached to the
-GitHub Release.
+All packages are published to the public **npm** registry on every `v*` tag, with tarballs
+attached to the GitHub Release.
+
+| Package | What it is |
+|---|---|
+| `aunboard` | the runtime + studio |
+| `@aunboard/plugin-core` | shared JSX transform + id map |
+| `@aunboard/vite` | Vite adapter |
+| `@aunboard/next` | Next.js adapter |
+| `@aunboard/cli` | `aunboard verify` for CI |
+
+They share one version number — bump them together.
+
+> **Publishing uses `pnpm publish`, never `npm publish`.** The adapters depend on
+> `@aunboard/plugin-core` via `workspace:*`; pnpm rewrites that to a real version range at pack
+> time and npm does not, so an npm publish would ship a manifest nobody can install. The
+> workflow also publishes in dependency order for the same reason.
 
 ## One-time setup
 
@@ -11,7 +26,7 @@ GitHub Release.
 
 ## Cut a release
 
-1. Bump the version in `packages/aunboard/package.json` (semver).
+1. Bump the version in every `packages/*/package.json` (semver, all the same).
 2. Commit it: `git commit -am "release: aunboard vX.Y.Z"`.
 3. Tag and push:
    ```bash
