@@ -50,8 +50,12 @@ for pkg in "${PACKAGES[@]}"; do
   [ -f "$tgz" ] || { echo "✗ pack produced no tarball for $name" >&2; exit 1; }
 
   # Publish with npm so a security key / passkey can authenticate. npm prints a URL to open.
-  # No --provenance: attestations need a CI OIDC identity and cannot be made locally.
-  if npm publish "$tgz" --access public; then
+  #
+  # --provenance=false overrides publishConfig.provenance in the manifests. Provenance
+  # attestations are signed with a CI OIDC identity; there is no provider on a laptop, so npm
+  # refuses up front with "Automatic provenance generation not supported for provider: null".
+  # The manifests keep provenance ON for CI, where every later release is attested.
+  if npm publish "$tgz" --access public --provenance=false; then
     echo "✓ $name@$version"
     published+=("$name")
     rm -f "$tgz"
