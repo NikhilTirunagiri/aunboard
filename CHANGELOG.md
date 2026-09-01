@@ -3,6 +3,26 @@
 All notable changes to `aunboard` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.5.0] — 2026-08-31
+
+`aunboard verify` can now check an authenticated app with runtime ids in its routes — the two
+things that made it unusable for a real product.
+
+### Added
+- **`--storage-state <path>`** — a Playwright storageState JSON (cookies + localStorage), so a
+  tour through an app behind a login is verifiable without the CLI knowing how to log in.
+- **`--header "Name: Value"`** (repeatable) — for token-based auth and environment headers.
+- **`--var name=value`** (repeatable) — substitutes `:name` and `{name}` in step routes, so a
+  tour authored against one workspace can be verified against a seeded CI instance. An
+  unsupplied token is left verbatim rather than blanked, so the 404 names the missing variable.
+
+### Documentation
+- Verifying an app behind a login, and routes with runtime ids.
+- **Touring a permissioned app** — filter the step list with your own capability checks before
+  handing it to the provider. A step pointing at a feature the viewer cannot reach burns the
+  full 8s `waitTimeout` and then dead-ends, so three gated steps in a row is 24 seconds of
+  nothing. Commit the full tour so `verify` checks every step; filter at runtime per viewer.
+
 ## [0.4.0] — 2026-08-31
 
 Fixes three API problems found while integrating aunboard into a real production app (a

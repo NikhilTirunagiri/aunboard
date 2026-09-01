@@ -14,6 +14,9 @@ describe("parseCliArgs", () => {
       tours: [DEFAULT_TOURS_GLOB],
       timeout: DEFAULT_TIMEOUT_MS,
       reporter: "pretty",
+      storageState: undefined,
+      headers: {},
+      vars: {},
     });
   });
 

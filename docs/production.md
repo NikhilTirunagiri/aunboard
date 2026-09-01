@@ -105,7 +105,65 @@ and point it at a real build.
 
 ---
 
-## 6. Checklist
+## 6. Verifying an app behind a login
+
+`aunboard verify` drives a real browser, so an authenticated app needs a session. Two ways:
+
+```bash
+# Cookies + localStorage from a logged-in session
+aunboard verify --url $URL --storage-state .auth/state.json
+
+# Or a token, if your app authenticates by header
+aunboard verify --url $URL --header "Authorization: Bearer $CI_TOKEN"
+```
+
+Produce the storage state once with a small Playwright script that logs in and calls
+`context.storageState({ path: ".auth/state.json" })`. Generate it in CI against a seeded test
+account — don't commit it, it's a live session.
+
+### Routes with runtime ids
+
+A tour authored against one workspace can't hardcode that workspace's id. Put a token in the
+route and supply it at verify time:
+
+```json
+{ "route": "/workspace/:ws/project/:proj/pipeline", "label": "…" }
+```
+
+```bash
+aunboard verify --url $URL --var ws=$SEED_WS --var proj=$SEED_PROJ
+```
+
+Both `:name` and `{name}` work. An unsupplied token is left in the URL rather than blanked, so
+the resulting 404 names the variable you forgot instead of silently checking the wrong page.
+
+---
+
+## 7. Touring a permissioned app
+
+If steps point at features some viewers can't access, **filter the step list before handing it to
+aunboard** — use your app's own capability checks:
+
+```tsx
+const steps = allSteps.filter((s) => can(user, s.capability));
+<AunboardProvider tours={{ demo: { ...tour, steps } }} … />
+```
+
+Without this, a viewer who lacks a permission hits an element that will never appear. Each such
+step burns the full `waitTimeout` (8s by default) and then shows the "couldn't find it" card —
+so three gated steps in a row means 24 seconds of nothing before the tour becomes useful.
+
+aunboard can't do this filtering for you: it has no model of your permissions, and guessing
+would mean hiding steps that are merely slow to load. Lowering `waitTimeout` reduces the sting
+but doesn't fix it — the step still shouldn't be there.
+
+A filtered tour is also why one committed JSON may not be right for every viewer. Commit the
+**full** tour (so `verify` checks every step against a fully-privileged seed account), and filter
+at runtime for the viewer in front of you.
+
+---
+
+## 8. Checklist
 
 - [ ] `enabled` gated on an env var
 - [ ] no `record` prop in the production build
@@ -113,4 +171,7 @@ and point it at a real build.
 - [ ] `@aunboard/vite` in the build config
 - [ ] `aunboard.ids.json` committed
 - [ ] `verify-tours.yml` running on PRs against a real build
+- [ ] authenticated app? `--storage-state` or `--header` wired in CI
+- [ ] routes with runtime ids? tokens in the route, `--var` in CI
+- [ ] permissioned app? steps filtered by capability at runtime
 - [ ] every tour step rated **stable** at record time (fix the weak ones before shipping)

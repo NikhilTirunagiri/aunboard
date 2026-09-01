@@ -1,4 +1,5 @@
 import { loadInjectScript } from "./inject-bundle";
+import { applyRouteVars } from "./args";
 import type { StepProbe, TourStep, VerifyDriver } from "./types";
 
 export const MISSING_PLAYWRIGHT_MESSAGE = [
@@ -94,16 +95,34 @@ const PAGE_CHECK = async (input: { locator: unknown; reveal: unknown[]; timeout:
 export interface DriverOptions {
   url: string;
   timeout: number;
+  /** Path to a Playwright storageState JSON — cookies + localStorage for a logged-in session. */
+  storageState?: string;
+  /** Extra HTTP headers on every request (bearer tokens, basic auth, feature flags). */
+  headers?: Record<string, string>;
+  /** Substituted into step routes before navigating. */
+  vars?: Record<string, string>;
 }
 
 /** Launch headless Chromium with the locator engine injected into every document. */
-export async function createPlaywrightDriver({ url, timeout }: DriverOptions): Promise<VerifyDriver> {
+export async function createPlaywrightDriver({
+  url,
+  timeout,
+  storageState,
+  headers,
+  vars,
+}: DriverOptions): Promise<VerifyDriver> {
   const { chromium } = await loadPlaywright();
   const script = loadInjectScript();
   const navigationTimeout = Math.max(timeout, 30_000);
 
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext();
+  // storageState carries the cookies and localStorage of a logged-in session, so a tour
+  // through an authenticated app is verifiable without the CLI knowing how to log in.
+  // extraHTTPHeaders covers token-based auth.
+  const context = await browser.newContext({
+    ...(storageState ? { storageState } : {}),
+    ...(headers && Object.keys(headers).length ? { extraHTTPHeaders: headers } : {}),
+  });
   // addInitScript re-injects on every document, so full-page navigations keep the engine.
   await context.addInitScript({ content: script });
   const page = await context.newPage();
@@ -111,8 +130,9 @@ export async function createPlaywrightDriver({ url, timeout }: DriverOptions): P
 
   return {
     async checkStep(step: TourStep): Promise<StepProbe> {
-      const target = resolveStepUrl(url, step.route);
-      if (step.route && pathnameOf(page.url()) !== pathnameOf(target)) {
+      const route = applyRouteVars(step.route, vars ?? {});
+      const target = resolveStepUrl(url, route);
+      if (route && pathnameOf(page.url()) !== pathnameOf(target)) {
         try {
           await page.goto(target, { waitUntil: "load", timeout: navigationTimeout });
         } catch (err) {

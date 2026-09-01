@@ -17,7 +17,14 @@ export interface RunDeps {
 
 export const defaultDeps: RunDeps = {
   cwd: process.cwd(),
-  createDriver: (options) => createPlaywrightDriver({ url: options.url, timeout: options.timeout }),
+  createDriver: (options) =>
+    createPlaywrightDriver({
+      url: options.url,
+      timeout: options.timeout,
+      storageState: options.storageState,
+      headers: options.headers,
+      vars: options.vars,
+    }),
   stdout: (line) => console.log(line),
   stderr: (line) => console.error(line),
 };

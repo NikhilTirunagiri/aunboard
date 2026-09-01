@@ -13,6 +13,12 @@ export interface VerifyOptions {
   tours: string[];
   timeout: number;
   reporter: Reporter;
+  /** Playwright storageState JSON (cookies + localStorage) — for an app behind a login. */
+  storageState?: string;
+  /** Extra HTTP headers sent with every request, e.g. an Authorization bearer token. */
+  headers: Record<string, string>;
+  /** Substituted into step routes: `:name` and `{name}` both become the value. */
+  vars: Record<string, string>;
 }
 
 export type ParsedArgs =
@@ -33,6 +39,16 @@ Options
   --timeout <ms>       How long to wait for each element to appear. Default: ${DEFAULT_TIMEOUT_MS}
   --reporter <name>    pretty | json | github. Default: pretty
   --json               Shorthand for --reporter json
+
+Authenticated apps
+  --storage-state <p>  Playwright storageState JSON (cookies + localStorage). Produce one
+                       with a Playwright script that logs in, then storageState({path}).
+  --header "K: V"      Extra header on every request. Repeatable.
+
+Routes with runtime ids
+  --var name=value     Substitutes :name and {name} in step routes. Repeatable.
+                       e.g. route "/workspace/:ws/project/:proj" with
+                            --var ws=abc --var proj=xyz
   -h, --help           Show this help
   -v, --version        Show the version
 
@@ -47,7 +63,55 @@ Examples
   aunboard verify --url http://localhost:3000
   aunboard verify --url http://localhost:3000 --tours "src/**/*.tour.json"
   aunboard verify --url http://localhost:3000 --reporter github
+  aunboard verify --url http://localhost:3000 --storage-state .auth/state.json
+  aunboard verify --url http://localhost:3000 --var ws=demo-ws --var proj=demo-proj
 `;
+
+/** `--header "Name: Value"` (or "Name=Value") into a header map. */
+export function parseHeaders(raw: string[]): { headers: Record<string, string>; error?: string } {
+  const headers: Record<string, string> = {};
+  for (const item of raw) {
+    const at = item.search(/[:=]/);
+    if (at <= 0) {
+      return { headers, error: `--header must look like "Name: Value" (got ${JSON.stringify(item)})` };
+    }
+    headers[item.slice(0, at).trim()] = item.slice(at + 1).trim();
+  }
+  return { headers };
+}
+
+/** `--var name=value` into a substitution map. */
+export function parseVars(raw: string[]): { vars: Record<string, string>; error?: string } {
+  const vars: Record<string, string> = {};
+  for (const item of raw) {
+    const at = item.indexOf("=");
+    if (at <= 0) {
+      return { vars, error: `--var must look like name=value (got ${JSON.stringify(item)})` };
+    }
+    vars[item.slice(0, at).trim()] = item.slice(at + 1);
+  }
+  return { vars };
+}
+
+/**
+ * Substitute `:name` / `{name}` tokens in a route.
+ *
+ * Routes in a committed tour can carry runtime ids — `/workspace/:ws/project/:proj` — because
+ * the instance a tour was authored against is not the instance CI verifies. An unsubstituted
+ * token is left alone rather than silently blanked, so the resulting 404 names the problem.
+ */
+export function applyRouteVars(route: string | undefined, vars: Record<string, string>): string | undefined {
+  if (!route) return route;
+  // ONE pass. Replacing var-by-var would rescan text that was just substituted, so a value
+  // containing ":other" would be replaced again by a later variable — a quietly wrong URL.
+  // A single regex pass never looks at its own output.
+  return route.replace(/:([A-Za-z_][\w-]*)|\{([A-Za-z_][\w-]*)\}/g, (match, colonName, braceName) => {
+    const name = colonName ?? braceName;
+    // An unknown token is left verbatim rather than blanked: a blanked segment yields a
+    // plausible-looking wrong URL, while the token makes the resulting 404 self-explanatory.
+    return Object.prototype.hasOwnProperty.call(vars, name) ? vars[name]! : match;
+  });
+}
 
 /** Parse `process.argv.slice(2)`. Never throws — bad input comes back as `{ kind: "error" }`. */
 export function parseCliArgs(argv: string[]): ParsedArgs {
@@ -64,6 +128,9 @@ export function parseCliArgs(argv: string[]): ParsedArgs {
         timeout: { type: "string" },
         reporter: { type: "string" },
         json: { type: "boolean" },
+        "storage-state": { type: "string" },
+        header: { type: "string", multiple: true },
+        var: { type: "string", multiple: true },
         help: { type: "boolean", short: "h" },
         version: { type: "boolean", short: "v" },
       },
@@ -123,5 +190,13 @@ export function parseCliArgs(argv: string[]): ParsedArgs {
 
   const tours = Array.isArray(values.tours) && values.tours.length > 0 ? (values.tours as string[]) : [DEFAULT_TOURS_GLOB];
 
-  return { kind: "verify", options: { url, tours, timeout, reporter } };
+  const { headers, error: headerError } = parseHeaders((values.header as string[] | undefined) ?? []);
+  if (headerError) return { kind: "error", message: `aunboard: ${headerError}` };
+
+  const { vars, error: varError } = parseVars((values.var as string[] | undefined) ?? []);
+  if (varError) return { kind: "error", message: `aunboard: ${varError}` };
+
+  const storageState = typeof values["storage-state"] === "string" ? (values["storage-state"] as string) : undefined;
+
+  return { kind: "verify", options: { url, tours, timeout, reporter, storageState, headers, vars } };
 }
