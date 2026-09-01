@@ -16,6 +16,7 @@ const tours: Tours = {
 
 function ctx(overrides: Partial<AunboardValue> = {}): AunboardValue {
   return {
+    enabled: true,
     mode: "off",
     setMode: vi.fn(),
     tours,

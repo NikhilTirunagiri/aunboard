@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AunboardContext, type AunboardMode } from "./context";
+import { AunboardContext, DISABLED_VALUE, type AunboardMode } from "./context";
 import { Overlay } from "./overlay";
 import { Walkthrough } from "./walkthrough";
 import { ModeSwitch } from "./mode-switch";
@@ -32,6 +32,14 @@ export interface AunboardProviderProps {
   waitTimeout?: number;
   /** Optional record mode config: which tour to record. Dev-only. */
   record?: RecordConfig;
+  /**
+   * Render the built-in bottom-left mode switcher. Default true.
+   *
+   * Set false when aunboard ships in a product build and the tour is started from your own
+   * UI — otherwise the pill sits on screen permanently. With it off, drive the overlay via
+   * `useAunboard().setMode("walkthrough")`.
+   */
+  showModeSwitch?: boolean;
 }
 
 function firstTour(tours: Tours): Tour | null {
@@ -49,6 +57,7 @@ export function AunboardProvider({
   persistProgress = true,
   waitTimeout,
   record,
+  showModeSwitch = true,
 }: AunboardProviderProps) {
   const active = enabled ?? isAunboardEnabled(process.env.NODE_ENV, undefined);
   const [mode, setMode] = useState<AunboardMode>(defaultMode);
@@ -112,11 +121,22 @@ export function AunboardProvider({
     if (!active) return;
     return installModeShortcut(setMode, () => Object.keys(liveToursRef.current).length > 0);
   }, [active]);
-
-  // defaultTourId, if supplied, must exist — fail loudly.
-  if (active && defaultTourId && !safeTours[defaultTourId]) {
-    throw new Error(`aunboard: defaultTourId "${defaultTourId}" is not present in tours.`);
-  }
+  // A missing defaultTourId used to throw. That is wrong for the common case: a `tours` map
+  // built from an async query is `{}` for the first render or two, so a constant
+  // defaultTourId would white-screen the app before the data arrived. Warn once in dev and
+  // fall back to no selection — the effect above adopts the first tour when they load.
+  const warnedRef = useRef(false);
+  useEffect(() => {
+    if (!active || !defaultTourId || warnedRef.current) return;
+    if (Object.keys(liveTours).length === 0) return; // still loading — not an error yet
+    if (liveTours[defaultTourId]) return;
+    warnedRef.current = true;
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        `aunboard: defaultTourId "${defaultTourId}" is not in tours (have: ${Object.keys(liveTours).join(", ") || "none"}). Falling back to the first tour.`,
+      );
+    }
+  }, [active, defaultTourId, liveTours]);
 
   // Dev-only dynamic import of RecordController.
   const [RC, setRC] = useState<React.ComponentType<{ tour: { id: string; name: string } }> | null>(null);
@@ -130,7 +150,12 @@ export function AunboardProvider({
     return () => { cancelled = true; };
   }, [active, mode, record]);
 
-  if (!active) return <>{children}</>;
+  // Still provide context when switched off. Returning bare children made useAunboard()
+  // throw for every consumer, so a tour trigger could not live in a shared component
+  // without knowing whether aunboard was enabled for this build.
+  if (!active) {
+    return <AunboardContext.Provider value={DISABLED_VALUE}>{children}</AunboardContext.Provider>;
+  }
 
   const activeTour = activeTourId
     ? (liveTours[activeTourId] ?? null)
@@ -138,10 +163,10 @@ export function AunboardProvider({
 
   return (
     <AunboardContext.Provider
-      value={{ mode, setMode, tours: liveTours, activeTourId, setActiveTourId }}
+      value={{ enabled: true, mode, setMode, tours: liveTours, activeTourId, setActiveTourId }}
     >
       {children}
-      <ModeSwitch />
+      {showModeSwitch && <ModeSwitch />}
       {mode === "explore" && <Overlay tour={activeTour} />}
       {mode === "walkthrough" && (
         <Walkthrough navigate={navigate} persist={persistProgress} waitTimeout={waitTimeout} />

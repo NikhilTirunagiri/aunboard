@@ -98,8 +98,18 @@ Render `<Aunboard>` around your app in `layout.tsx`. That's the whole integratio
 | `enabled?` | `NODE_ENV !== "production"` | force the overlay on/off (set `true` for staging demos) |
 | `defaultMode?` | `"off"` | `"off" \| "explore" \| "walkthrough" \| "record"` |
 | `persistProgress?` | `true` | resume Walkthrough position in localStorage |
+| `showModeSwitch?` | `true` | render the built-in bottom-left mode pill. Set `false` in a product build and start tours from your own UI |
 
 ---
+
+> **Shipping in a product build?** Pass `showModeSwitch={false}` and start the tour yourself:
+> ```tsx
+> const { enabled, setMode } = useAunboard();   // safe even when aunboard is switched off
+> <button disabled={!enabled} onClick={() => setMode("walkthrough")}>Take the tour</button>
+> ```
+> `useAunboard()` works anywhere under the provider, active or not — it returns `enabled: false`
+> with inert setters rather than throwing, so a trigger can live in shared UI. Use
+> `useAunboardOptional()` if the provider might be absent entirely.
 
 ## Record
 

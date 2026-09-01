@@ -22,8 +22,13 @@ export function ModeSwitch() {
         display: "flex",
         gap: 6,
         alignItems: "center",
-        background: "#fff",
-        border: "1px solid #ddd",
+        // `color-scheme` makes the browser paint form controls and scrollbars to match, and
+        // the light-dark() values follow the user's OS theme. Previously this was hardcoded
+        // white, which glared on a dark-themed app.
+        colorScheme: "light dark",
+        background: "light-dark(#fff, #1f2430)",
+        color: "light-dark(#1f2430, #f4f6fa)",
+        border: "1px solid light-dark(#ddd, #39404f)",
         borderRadius: 999,
         padding: 4,
         fontSize: 12,
@@ -43,8 +48,8 @@ export function ModeSwitch() {
               borderRadius: 999,
               padding: "4px 10px",
               cursor: "pointer",
-              background: selected ? "#1f2430" : "transparent",
-              color: selected ? "#fff" : "#1f2430",
+              background: selected ? "light-dark(#1f2430, #f4f6fa)" : "transparent",
+              color: selected ? "light-dark(#fff, #1f2430)" : "light-dark(#1f2430, #f4f6fa)",
             }}
           >
             {m.label}

@@ -3,6 +3,31 @@
 All notable changes to `aunboard` are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.4.0] — 2026-08-31
+
+Fixes three API problems found while integrating aunboard into a real production app (a
+Vite/React/TanStack-Router product shipping in 17 locales). All three forced the integrator into
+workarounds; none should have been necessary.
+
+### Added
+- **`showModeSwitch`** on `AunboardProvider` (default `true`). The built-in bottom-left mode pill
+  rendered whenever the provider was active, so shipping aunboard in a product build meant a
+  permanent floating control on every page. Set it `false` and drive the overlay from your own
+  UI via `useAunboard().setMode("walkthrough")`.
+- **`useAunboardOptional()`** — returns `null` instead of throwing when there is no provider
+  above, for a shared component rendered in apps that may not mount aunboard at all.
+- **`enabled`** on the context value, so a tour trigger can render itself disabled rather than
+  having to know out-of-band whether aunboard is on for this build.
+
+### Changed
+- **The provider now supplies context even when switched off.** It previously rendered bare
+  children, so `useAunboard()` threw for every consumer — which made it unsafe to put a "Start
+  tour" button in shared UI. Calls now return `enabled: false` with inert setters.
+- **A missing `defaultTourId` warns instead of throwing.** It threw during render, so a `tours`
+  map populated by an async query — `{}` for the first render or two — white-screened the app
+  before the data arrived. It now warns once in dev and adopts the first tour when they load.
+- The mode switcher follows the OS colour scheme instead of a hardcoded white background.
+
 ## [0.3.1] — 2026-08-31
 
 First release published by CI through trusted publishing (OIDC) rather than by hand, so unlike

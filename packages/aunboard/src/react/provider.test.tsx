@@ -108,16 +108,21 @@ describe("AunboardProvider", () => {
     expect(document.querySelector("[data-aunboard-overlay]")).toBeNull();
   });
 
-  it("throws when defaultTourId is not present in tours", () => {
-    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("warns but does not throw when defaultTourId is not present in tours", () => {
+    // This used to throw. A `tours` map built from an async query is {} for the first
+    // render or two, so a constant defaultTourId white-screened the whole app before the
+    // data arrived. A bad id is a misconfiguration worth surfacing, not worth crashing on.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(() =>
       render(
         <AunboardProvider tours={tours} defaultTourId="nope" enabled>
           <div>app</div>
         </AunboardProvider>,
       ),
-    ).toThrow(/defaultTourId "nope" is not present/);
-    spy.mockRestore();
+    ).not.toThrow();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('defaultTourId "nope"'));
+    expect(screen.getByText("app")).toBeTruthy();
+    warn.mockRestore();
   });
 
   it("walkthrough renders the first recording step when tours={} (record-first flow)", async () => {

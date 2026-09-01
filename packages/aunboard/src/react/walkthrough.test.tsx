@@ -26,6 +26,7 @@ const tours: Tours = {
 
 function ctx(overrides: Partial<AunboardValue> = {}): AunboardValue {
   return {
+    enabled: true,
     mode: "walkthrough",
     setMode: vi.fn(),
     tours,

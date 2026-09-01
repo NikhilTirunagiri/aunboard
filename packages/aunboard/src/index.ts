@@ -1,6 +1,6 @@
 export { AunboardProvider } from "./react/provider";
 export type { AunboardProviderProps, RecordConfig } from "./react/provider";
-export { useAunboard } from "./react/context";
+export { useAunboard, useAunboardOptional } from "./react/context";
 export type { AunboardValue, AunboardMode } from "./react/context";
 export { LegendPanel } from "./react/legend";
 export { useTour } from "./tour/controller";

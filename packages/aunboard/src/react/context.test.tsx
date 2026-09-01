@@ -17,6 +17,7 @@ describe('"record" is a valid AunboardMode value', () => {
         const [mode, setMode] = React.useState<AunboardValue["mode"]>("off");
         externalSetMode = setMode;
         const value: AunboardValue = {
+          enabled: true,
           mode,
           setMode,
           tours: {},
